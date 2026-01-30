@@ -7,27 +7,47 @@ This guide walks through the complete RPIV (Research → Plan → Implement → 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
 │   START     │────▶│  RESEARCH   │────▶│    PLAN     │────▶│  IMPLEMENT  │
-│             │     │             │     │             │     │             │
+│  (enhanced) │     │             │     │             │     │             │
 │ /rpiv_start │     │ /rpiv_      │     │ /rpiv_plan  │     │ /rpiv_      │
 │             │     │ research    │     │             │     │ implement   │
-└─────────────┘     └─────────────┘     └─────────────┘     └──────┬──────┘
+└──────┬──────┘     └──────┬──────┘     └──────┬──────┘     └──────┬──────┘
+       │                   │                   │                   │
+       ▼                   ▼                   ▼                   │
+  ┌─────────┐         ┌─────────┐         ┌─────────┐             │
+  │ DISCUSS │         │ DISCUSS │         │ DISCUSS │             │
+  │(optional)│        │(auto if │         │(optional)│            │
+  │D01_scope │        │questions)│        │D03_design│            │
+  └─────────┘         └─────────┘         └─────────┘             │
                                                                    │
                     ┌─────────────┐     ┌─────────────┐            │
                     │   SUMMARY   │◀────│  VALIDATE   │◀───────────┘
                     │             │     │             │
                     │ /session_   │     │ /rpiv_      │
                     │ summary     │     │ validate    │
-                    └─────────────┘     └─────────────┘
+                    └─────────────┘     └──────┬──────┘
+                                               │
+                                          ┌────┴────┐
+                                          │ DISCUSS │
+                                          │(if fail)│
+                                          │D0X_retro│
+                                          └─────────┘
 ```
+
+**Discussion points** (`/rpiv_discuss`) are optional but recommended when:
+- Research finds open questions (auto-suggested)
+- Multiple valid approaches exist
+- Significant trade-offs need user input
+- Validation fails and next steps need clarification
 
 ---
 
-## Phase 1: Start Session
+## Phase 1: Start Session (Enhanced)
 
 ### Command
 ```
 /rpiv_start [task_description]
 /rpiv_start "Add user authentication to API"
+/rpiv_start --minimal                    # Skip context scan (fast start)
 ```
 
 ### What Happens
@@ -40,10 +60,19 @@ This guide walks through the complete RPIV (Research → Plan → Implement → 
    - Format: `YYYYMMDD-HHMMSS-short-description`
    - Example: `20260115-143022-add-auth`
 
-3. **Creates session structure**
+3. **Fast context scan** (~2-3 min, skip with `--minimal`):
+   - Searches vault for related sessions
+   - Loads existing conventions/patterns
+   - Quick codebase scan for relevant files
+
+4. **Interactive clarification**:
+   - Asks targeted questions based on scan results
+   - Records user responses in context artifact
+
+5. **Creates session structure**
    ```
    $VAULT_BASE/<repo>/sessions/<session_id>/
-   ├── 00_context.md    # Context snapshot
+   ├── 00_context.md    # Enhanced context snapshot
    └── index.md         # Session tracker
    ```
 
@@ -59,8 +88,89 @@ Session ID: 20260115-143022-add-auth
 Context: root
 Task: Add user authentication to API
 
-Next: /rpiv_research
+### Context Scan Results
+- Related sessions: 2 found
+- Conventions: loaded
+- Patterns: 3 found
+- Relevant files: 8 identified
+
+### User Clarifications
+- Scope: Standard (core + common edge cases)
+- Build on previous session: Yes
+
+Next: /rpiv_research (or /rpiv_discuss --topic "scope" if questions remain)
 ```
+
+---
+
+## Phase 1.5: Discussion (Optional)
+
+### Command
+```
+/rpiv_discuss                           # Auto-detect context
+/rpiv_discuss --topic "approach"        # Specify topic
+/rpiv_discuss --after research          # Discuss after specific phase
+```
+
+### When to Use
+- **After start**: Clarify scope before research
+- **After research**: Weigh approaches before planning (auto-suggested if open questions)
+- **After plan**: Review design before implementing
+- **After validation fails**: Discuss what went wrong
+
+### What Happens
+1. **Loads current state** from latest artifacts
+2. **Presents summary** (max 20 lines) with decision points
+3. **Facilitates discussion** via questions
+4. **Records decisions** to vault artifact
+
+### Output
+```
+## RPIV Discussion Complete
+
+Created:
+- $VAULT_BASE/<repo>/sessions/<session_id>/D02_approach.md
+
+Key Decisions:
+- Use existing auth middleware pattern
+- JWT with refresh tokens
+- Store sessions in Redis
+
+Impact:
+- Plan will follow patterns/auth-middleware.md
+- Need to add Redis dependency
+
+Next: /rpiv_plan
+```
+
+### Discussion Artifact Structure
+```markdown
+# Discussion: Approach
+
+## Context
+Task: Add user authentication
+Trigger: Open questions from research
+
+## Options Considered
+### Option A: Extend existing middleware
+- Pros: Follows patterns, less code
+- Cons: May need refactoring
+
+### Option B: New auth service
+- Pros: Clean separation
+- Cons: More complexity
+
+## Decision
+**Chosen**: Option A
+**Reasoning**: Aligns with existing patterns, faster to implement
+**Trade-offs**: Will need to refactor if auth grows complex
+
+## Impact on Next Phase
+- Follow patterns/auth-middleware.md
+- Focus on JWT validation logic
+```
+
+**Key principle**: Discussion artifacts are **decision summaries**, not transcripts. Focus on the WHY.
 
 ---
 
@@ -499,7 +609,10 @@ When validation fails, the RPIV workflow supports iterations:
 
 ```
 First iteration:
-  10_research.md → 20_plan.md → 30_implementation.md → 40_validation.md (FAIL)
+  10_research.md → D01_approach.md → 20_plan.md → 30_implementation.md → 40_validation.md (FAIL)
+
+Discuss what went wrong:
+  D02_retrospective.md
 
 Fix cycle:
   21_plan.md → 31_implementation.md → 41_validation.md (FAIL)
@@ -511,6 +624,8 @@ Finalize:
   50_session_summary.md
 ```
 
+**Note**: Discussion artifacts (DXX) can be created at any point when decisions need to be recorded. They're numbered sequentially (D01, D02, D03...) regardless of which phase they follow.
+
 ### Index Tracking
 The `index.md` tracks all artifacts:
 ```markdown
@@ -520,9 +635,11 @@ The `index.md` tracks all artifacts:
 |-------|--------|----------|---------|
 | Context | complete | [00_context.md] | 2026-01-15T14:30:00Z |
 | Research | complete | [10_research.md] | 2026-01-15T14:35:00Z |
+| Discussion | complete | [D01_approach.md] | 2026-01-15T14:40:00Z |
 | Plan | complete | [20_plan.md] | 2026-01-15T14:45:00Z |
 | Implement | complete | [30_implementation.md] | 2026-01-15T15:00:00Z |
 | Validate | needs_attention | [40_validation.md] | 2026-01-15T15:15:00Z |
+| Discussion | complete | [D02_retrospective.md] | 2026-01-15T15:20:00Z |
 | Plan (fixes) | complete | [21_plan.md] | 2026-01-15T15:30:00Z |
 | Implement (fixes) | complete | [31_implementation.md] | 2026-01-15T15:45:00Z |
 | Validate (2nd) | **PASS** | [41_validation.md] | 2026-01-15T16:00:00Z |

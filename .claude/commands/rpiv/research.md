@@ -224,7 +224,27 @@ ELSE (iteration - 11, 12, 13...):
 | <timestamp> | Research completed ($NEXT_VERSION) |
 ```
 
-### Step 7: Report
+### Step 7: Determine Next Step
+
+Based on research findings:
+
+```
+IF "Open Questions" section has items:
+    SUGGEST: /rpiv_discuss --topic "approach"
+    REASON: "Research identified <N> open questions that should be
+             discussed before planning."
+
+ELSE IF high-risk items identified:
+    SUGGEST: /rpiv_discuss --topic "approach"
+    REASON: "Research identified high-risk items. Recommend discussing
+             approach before planning."
+
+ELSE:
+    SUGGEST: /rpiv_plan
+    REASON: "Research complete with no blocking questions."
+```
+
+### Step 8: Report
 
 ```
 ## RPIV Research Complete
@@ -242,7 +262,7 @@ Key Findings:
 Open Questions: <N>
 Risks Identified: <N>
 
-Next: /rpiv_plan
+Next: <suggested command with reasoning>
 ```
 
 ## Important Notes

@@ -54,14 +54,49 @@ mypy src/
 
 ### Starting a Session
 
-**Good**: Specific task description
+**Good**: Specific task description with context scan
 ```
 /rpiv_start "Add JWT authentication to /api/users endpoint with refresh token support"
+# Wait for context scan and answer clarification questions
+```
+
+**Also Good**: Fast start when you know what you need
+```
+/rpiv_start --minimal "Fix typo in auth error message"
 ```
 
 **Bad**: Vague description
 ```
 /rpiv_start "fix auth"
+```
+
+### Using Discussions
+
+**Good**: Record significant decisions
+```
+# After research identifies multiple approaches
+/rpiv_discuss --topic "approach"
+# Discuss trade-offs, record WHY you chose Option A
+```
+
+**Good**: Clarify before continuing after failure
+```
+# Validation failed, need to discuss next steps
+/rpiv_discuss --after validation
+# Record what went wrong and the fix strategy
+```
+
+**Bad**: Using discuss for everything
+```
+# Don't create discussion artifacts for trivial decisions
+# If there's only one obvious path, just proceed
+```
+
+**Bad**: Not using discuss when you should
+```
+# Research found 3 approaches with different trade-offs
+# User said "use JWT" in chat but reasoning lost
+# Should have used /rpiv_discuss to record the WHY
 ```
 
 ### Research Phase
@@ -129,6 +164,57 @@ Proceed to Phase 2? (y/n)
 **Bad**: Manual validation only
 - Running tests but skipping agent review
 - Not using the specialized reviewers
+
+---
+
+## Discussion Best Practices
+
+### When to Use `/rpiv_discuss`
+
+**Use discussions when**:
+- Research identifies multiple valid approaches
+- Significant trade-offs need user input
+- Validation fails and fix strategy isn't obvious
+- User makes a decision that should be recorded for future reference
+
+**Don't use discussions when**:
+- There's only one obvious path forward
+- The decision is trivial
+- You're just confirming obvious next steps
+
+### Discussion Artifact Quality
+
+**Good discussion artifact**:
+```markdown
+## Options Considered
+### Option A: JWT tokens
+- Pros: Stateless, scalable
+- Cons: Can't revoke easily
+
+### Option B: Session cookies
+- Pros: Easy revocation
+- Cons: Requires session store
+
+## Decision
+**Chosen**: Option A (JWT)
+**Reasoning**: API is stateless by design, scaling is priority.
+              Will implement token blacklist for revocation if needed.
+**Trade-offs Accepted**: More complex revocation logic
+```
+
+**Bad discussion artifact**:
+```markdown
+## Decision
+Use JWT because user said so.
+```
+
+### Key Principle: Capture the WHY
+
+The most valuable part of a discussion artifact is the **reasoning**, not the decision itself. Future you (or another developer) needs to understand:
+- What options were considered
+- Why the chosen option won
+- What trade-offs were accepted
+- What constraints influenced the decision
 
 ---
 
@@ -276,9 +362,26 @@ The resume process:
 ```
 /rpiv_start "add feature"
 /rpiv_research
+/rpiv_discuss --topic "approach"    # If open questions exist
 /rpiv_plan
 /rpiv_implement
 /rpiv_validate
+```
+
+### 1.5. Losing Decision Context
+
+**Bad**:
+```
+Research: "Found 3 approaches: A, B, C"
+User in chat: "Let's go with B"
+[No record of WHY, reasoning lost when context resets]
+```
+
+**Good**:
+```
+Research: "Found 3 approaches: A, B, C"
+/rpiv_discuss --topic "approach"
+[Records: Chose B because X, trade-offs Y, constraints Z]
 ```
 
 ### 2. Ignoring Validation Failures
@@ -344,7 +447,8 @@ Using microservice-distiller to document external interfaces only
 
 | Command | Model | Rationale |
 |---------|-------|-----------|
-| `/rpiv_start` | sonnet | Simple setup task |
+| `/rpiv_start` | sonnet | Setup + context scan |
+| `/rpiv_discuss` | opus | Decision facilitation |
 | `/rpiv_research` | opus | Complex synthesis |
 | `/rpiv_plan` | opus | Architecture decisions |
 | `/rpiv_implement` | opus | Code generation |

@@ -35,6 +35,7 @@ This document defines non-negotiable rules for Claude agents working in this rep
 ```
 $VAULT_BASE/<repo_name>/sessions/<session_id>/
 ├── 00_context.md         # Initial context snapshot (never versioned)
+├── DXX_<topic>.md        # Discussion artifacts (D01, D02, D03...)
 ├── 1X_research.md        # Research findings (10, 11, 12...)
 ├── 2X_plan.md            # Implementation plan (20, 21, 22...)
 ├── 3X_implementation.md  # Implementation summary (30, 31, 32...)
@@ -48,6 +49,7 @@ Artifacts are **NEVER overwritten** between RPIV iterations:
 - First iteration: `10_research.md` → `20_plan.md` → `30_implementation.md` → `40_validation.md`
 - Second iteration: `11_research.md` → `21_plan.md` → `31_implementation.md` → `41_validation.md`
 - Pattern: `<decade><iteration>_<type>.md` where decade = artifact type (1=research, 2=plan, 3=impl, 4=valid)
+- Discussion artifacts use `DXX_<topic>.md` pattern (D01, D02, D03...) - sequential across session
 
 **Finding artifacts:**
 ```bash
@@ -84,7 +86,7 @@ repo: <repo_name>
 scope: root|microservice|service
 microservice: <name_or_null>
 session: <session_id_or_null>
-type: context|research|plan|implementation|validation|doc|index|conventions|patterns
+type: context|discussion|research|plan|implementation|validation|doc|index|conventions|patterns
 created: <iso8601>
 updated: <iso8601>
 sources:
@@ -92,28 +94,50 @@ sources:
 ---
 ```
 
+**Discussion artifacts** also include:
+```yaml
+topic: scope|approach|design|review|retrospective
+phase_after: context|research|plan|implement|validate
+```
+
 ## RPIV Workflow
 
-### Research -> Plan -> Implement -> Validate
+### Start -> [Discuss] -> Research -> [Discuss] -> Plan -> Implement -> Validate
 
-1. **Research** (`/rpiv_research`)
+1. **Start** (`/rpiv_start`)
+   - Enhanced context gathering (~2-3 min):
+     - Scan vault for related sessions/knowledge
+     - Quick codebase scan for relevant files
+     - Interactive clarification questions
+   - Write enriched `00_context.md`
+   - Use `--minimal` to skip context scan
+
+2. **Discuss** (`/rpiv_discuss`) - OPTIONAL
+   - Facilitate decision-making at any point in workflow
+   - Auto-suggested after research if open questions exist
+   - Write `DXX_<topic>.md` (D01_scope, D02_approach, etc.)
+   - **Discussion artifacts are decision summaries, not transcripts**
+   - 300-500 lines max, focus on WHY decisions were made
+
+3. **Research** (`/rpiv_research`)
    - Gather context via distiller agents
    - Write `10_research.md`
    - Update stable knowledge if applicable
+   - Auto-suggests `/rpiv_discuss` if open questions found
 
-2. **Plan** (`/rpiv_plan`)
+4. **Plan** (`/rpiv_plan`)
    - Requires research artifact (unless `--no-research`)
    - Write `20_plan.md` with:
      - Phases and success criteria
      - **Manual Testing Plan (REQUIRED)** - specific curl commands, expected responses, side effects
    - Plans must include actionable verification steps
 
-3. **Implement** (`/rpiv_implement`)
+5. **Implement** (`/rpiv_implement`)
    - Requires plan artifact (enforced)
    - Execute changes
    - Write `30_implementation.md`
 
-4. **Validate** (`/rpiv_validate`)
+6. **Validate** (`/rpiv_validate`)
    - **Two-Pass Validation System**:
      - **Pass 1** (always, ~5 min): `make check`, `make test`, code-reviewer
        - Fail-all-at-once: collects ALL issues, never exits early
@@ -127,7 +151,7 @@ sources:
    - Write `40_validation.md`
    - **Purpose**: Find ALL issues in one run, not iteratively
 
-5. **Summarize** (`/session_summary`)
+7. **Summarize** (`/session_summary`)
    - Write `50_session_summary.md` with:
      - Empirical verification playbook (manual testing)
      - **Future Work & Integration** - how to build upon this work

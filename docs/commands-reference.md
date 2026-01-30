@@ -8,7 +8,7 @@ Complete reference for all RPIV framework slash commands.
 
 ### `/rpiv_start`
 
-**Description**: Start an RPIV session - creates session folder in vault with context and index artifacts.
+**Description**: Start an RPIV session with enhanced context gathering - scans vault for related knowledge, checks codebase, asks clarifying questions.
 
 **Model**: `sonnet`
 
@@ -16,11 +16,18 @@ Complete reference for all RPIV framework slash commands.
 ```
 /rpiv_start [task_description]
 /rpiv_start "Add user authentication to API"
+/rpiv_start --minimal                    # Skip context scan (fast start)
 ```
 
 **Creates**:
-- `$VAULT_BASE/<repo>/sessions/<session_id>/00_context.md`
+- `$VAULT_BASE/<repo>/sessions/<session_id>/00_context.md` (enhanced)
 - `$VAULT_BASE/<repo>/sessions/<session_id>/index.md`
+
+**Enhanced Context Scan** (~2-3 min):
+- Searches vault for related sessions
+- Loads existing conventions/patterns
+- Quick codebase scan for relevant files
+- Interactive clarification questions
 
 **Output**:
 ```
@@ -28,8 +35,60 @@ Session ID: <session_id>
 Context: root|microservice
 Task: <task_description>
 
-Next: /rpiv_research
+Context Scan Results:
+- Related sessions: N found
+- Conventions: loaded|not found
+- Patterns: N found
+- Relevant files: N identified
+
+Next: /rpiv_research (or /rpiv_discuss if questions remain)
 ```
+
+---
+
+### `/rpiv_discuss`
+
+**Description**: Facilitate structured discussion and record decisions to vault. Produces decision summaries, not transcripts.
+
+**Model**: `opus`
+
+**Usage**:
+```
+/rpiv_discuss                           # Auto-detect context from latest artifacts
+/rpiv_discuss --topic "approach"        # Specify topic for artifact naming
+/rpiv_discuss --after research          # Discuss after specific phase
+/rpiv_discuss --after validation        # Discuss validation results
+```
+
+**When to Use**:
+- After research: Weigh approaches before planning (auto-suggested if open questions)
+- After plan: Review design decisions before implementing
+- After validation failure: Discuss what went wrong and how to fix
+- Any time: When significant decisions need to be recorded
+
+**Creates**:
+- `$VAULT_BASE/<repo>/sessions/<session_id>/DXX_<topic>.md`
+
+**Topic Defaults** (based on phase):
+- After context → `scope`
+- After research → `approach`
+- After plan → `design`
+- After implement → `review`
+- After validation → `retrospective`
+
+**Output**:
+```
+Key Decisions:
+- <decision 1>
+- <decision 2>
+
+Impact:
+- <how this affects next phase>
+
+Next: <suggested command based on context>
+```
+
+**Note**: Discussion artifacts are **decision summaries** (300-500 lines max), not conversation transcripts. Focus on capturing the WHY behind decisions.
 
 ---
 
@@ -66,8 +125,11 @@ Key Findings: [list]
 Open Questions: N
 Risks Identified: N
 
-Next: /rpiv_plan
+Next: /rpiv_discuss --topic "approach" (if open questions)
+      /rpiv_plan (if no blocking questions)
 ```
+
+**Note**: Auto-suggests `/rpiv_discuss` if research identifies open questions or high-risk items.
 
 ---
 
@@ -463,7 +525,8 @@ Then provide research query when prompted.
 
 | Command | Model | Purpose |
 |---------|-------|---------|
-| `/rpiv_start` | sonnet | Start RPIV session |
+| `/rpiv_start` | sonnet | Start RPIV session (enhanced context) |
+| `/rpiv_discuss` | opus | Facilitate & record decisions |
 | `/rpiv_research` | opus | Research phase |
 | `/rpiv_plan` | opus | Planning phase |
 | `/rpiv_implement` | opus | Implementation phase |

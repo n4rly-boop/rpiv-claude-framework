@@ -7,11 +7,14 @@ A structured workflow framework for Claude Code that emphasizes artifact persist
 ## Quick Start
 
 ```bash
-# Start a new RPIV session
+# Start a new RPIV session (enhanced context gathering)
 /rpiv_start "Add user authentication to API"
 
 # Research the codebase
 /rpiv_research
+
+# Discuss approach if open questions (optional, auto-suggested)
+/rpiv_discuss --topic "approach"
 
 # Create implementation plan
 /rpiv_plan
@@ -98,7 +101,8 @@ Reference files as `path/to/file.py:line_number`. Full code belongs in vault art
 ```
 $VAULT_BASE/<repo_name>/
 ├── sessions/<session_id>/
-│   ├── 00_context.md         # Initial context (never versioned)
+│   ├── 00_context.md         # Enhanced context (with clarifications)
+│   ├── DXX_<topic>.md        # Discussion artifacts (D01, D02...)
 │   ├── 1X_research.md        # Research (10, 11, 12...)
 │   ├── 2X_plan.md            # Plans (20, 21, 22...)
 │   ├── 3X_implementation.md  # Implementation (30, 31...)
