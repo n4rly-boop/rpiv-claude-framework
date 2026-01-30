@@ -62,8 +62,10 @@
 Artifacts within a session are **never overwritten**. Instead, they are versioned using a decade-based numbering scheme:
 
 ```
-Decade  │ Artifact Type    │ Pattern
+Pattern │ Artifact Type    │ Examples
 ────────┼──────────────────┼─────────────────
+  00    │ Context          │ 00 (never versioned)
+  DXX   │ Discussion       │ D01, D02, D03...
   1X    │ Research         │ 10, 11, 12...
   2X    │ Plan             │ 20, 21, 22...
   3X    │ Implementation   │ 30, 31, 32...
@@ -71,15 +73,23 @@ Decade  │ Artifact Type    │ Pattern
   50    │ Session Summary  │ 50 (written once)
 ```
 
+**Discussion artifacts** use `DXX_<topic>.md` naming:
+- `D01_scope.md` - Initial scoping discussion
+- `D02_approach.md` - Approach discussion after research
+- `D03_design.md` - Design review before implementation
+- Sequential numbering (D01, D02, D03...) maintains chronological order
+
 ### Example: Multi-Iteration Session
 
 ```
 sessions/20260115-143022-add-auth/
-├── 00_context.md           # Initial context
+├── 00_context.md           # Initial context (enhanced with clarifications)
 ├── 10_research.md          # First research
+├── D01_approach.md         # Discussion: chose JWT over sessions
 ├── 20_plan.md              # First plan
 ├── 30_implementation.md    # First implementation
 ├── 40_validation.md        # First validation (FAIL)
+├── D02_retrospective.md    # Discussion: what went wrong
 ├── 21_plan.md              # Plan fixes
 ├── 31_implementation.md    # Implementation fixes
 ├── 41_validation.md        # Second validation (PASS)
@@ -253,7 +263,8 @@ $VAULT_BASE/                          # Default: $HOME/context_vault
 └── <repo_name>/
     ├── sessions/
     │   └── <session_id>/
-    │       ├── 00_context.md
+    │       ├── 00_context.md         # Enhanced with clarifications
+    │       ├── DXX_<topic>.md        # Discussion artifacts (D01, D02...)
     │       ├── 1X_research.md
     │       ├── 2X_plan.md
     │       ├── 3X_implementation.md
@@ -318,10 +329,16 @@ repo: <repo_name>
 scope: root|microservice|service
 microservice: <name_or_null>
 session: <session_id_or_null>
-type: context|research|plan|implementation|validation|doc|index
+type: context|discussion|research|plan|implementation|validation|doc|index
 created: <iso8601>
 updated: <iso8601>
 sources:
   - <paths_or_commands_used>
 ---
+```
+
+**Discussion artifacts** also include:
+```yaml
+topic: scope|approach|design|review|retrospective
+phase_after: context|research|plan|implement|validate
 ```

@@ -5,13 +5,14 @@ model: sonnet
 
 # RPIV Session Start
 
-Initialize a new RPIV (Research -> Plan -> Implement -> Validate) session.
+Initialize a new RPIV (Research -> Plan -> Implement -> Validate) session with **enhanced context gathering**.
 
 ## Usage
 
 ```
 /rpiv_start [task_description]
 /rpiv_start "Add user authentication to API"
+/rpiv_start --minimal                    # Skip context scan (fast start)
 ```
 
 ## Process
@@ -38,7 +39,93 @@ Initialize a new RPIV (Research -> Plan -> Implement -> Validate) session.
    - Format: `YYYYMMDD-HHMMSS-short-description`
    - Example: `20260111-143022-add-auth`
 
-### Step 2: Create Session Structure
+### Step 2: Fast Context Scan (Medium Depth, ~2-3 min)
+
+**Skip this step if `--minimal` flag provided.**
+
+This step front-loads context gathering to make research more targeted.
+
+#### 2.1: Scan Vault for Related Knowledge
+
+Use `obsidian` MCP to search:
+
+```
+1. Search for related sessions:
+   - obsidian.search_notes(query=<keywords from task>)
+   - Look in: $VAULT_BASE/<repo>/sessions/
+   - Find sessions with similar task descriptions
+
+2. Check existing knowledge:
+   - Read: $VAULT_BASE/<repo>/knowledge/conventions/main.md (if exists)
+   - Read: $VAULT_BASE/<repo>/knowledge/patterns/*.md (list)
+   - Check: $VAULT_BASE/<repo>/knowledge/microservices/ (if root repo)
+
+3. Check for recent handoffs:
+   - List: $VAULT_BASE/<repo>/handoffs/ (last 5)
+```
+
+#### 2.2: Quick Codebase Scan
+
+Spawn `codebase-locator` agent (quick mode):
+
+```
+Prompt: "Find files related to: <task_description>
+         Return only file paths, grouped by relevance.
+         Limit: top 10 most relevant files.
+         Do NOT analyze content - just locate."
+```
+
+This gives us a map of relevant files WITHOUT deep analysis (that's for research phase).
+
+#### 2.3: Collect Scan Results
+
+Aggregate findings:
+- Related sessions found: [list of session IDs]
+- Conventions loaded: yes/no
+- Patterns found: [list of pattern names]
+- Relevant files: [list of paths]
+
+### Step 3: Interactive Clarification
+
+Based on scan results, ask targeted questions using `AskUserQuestion`:
+
+**If related sessions found:**
+```
+I found a related session from <date>: "<task description>"
+Should I reference its artifacts for this session?
+- Yes, build on previous work
+- No, start fresh
+```
+
+**If conventions/patterns found:**
+```
+I found existing patterns that may apply:
+- <pattern 1>: <brief description>
+- <pattern 2>: <brief description>
+
+Should I use these as constraints for this task?
+- Yes, follow existing patterns
+- No, this task may need different approaches
+- Let me clarify which ones apply
+```
+
+**If task is ambiguous:**
+```
+A few clarifying questions about "<task>":
+
+1. <Specific question based on context>
+   - Option A
+   - Option B
+
+2. <Scope question>
+   - Minimal (just the core feature)
+   - Standard (core + common edge cases)
+   - Comprehensive (full implementation with tests)
+```
+
+**Collect responses** for inclusion in context artifact.
+
+### Step 4: Create Session Structure
 
 Use `obsidian` MCP server to create:
 
@@ -48,7 +135,7 @@ $VAULT_BASE/<repo_name>/sessions/<session_id>/
 └── index.md
 ```
 
-### Step 3: Write 00_context.md
+### Step 5: Write 00_context.md (Enhanced)
 
 ```markdown
 ---
@@ -62,12 +149,24 @@ updated: <iso8601>
 sources:
   - git rev-parse --show-toplevel
   - git branch --show-current
+  - vault search results
+  - codebase-locator output
 ---
 
 # Session Context: <session_id>
 
 ## Task
+
 <task_description_from_argument_or_prompt>
+
+## User Clarifications
+
+| Question | Response |
+|----------|----------|
+| <question 1> | <user response> |
+| <question 2> | <user response> |
+
+*(If no clarifications were gathered, note: "No clarifications - using defaults")*
 
 ## Repository Context
 
@@ -84,6 +183,43 @@ sources:
 |------|------|--------|
 | service_name | ./service_name | detected |
 | ... | ... | ... |
+
+## Related Knowledge (from vault scan)
+
+### Related Sessions
+
+| Session | Date | Task | Relevance |
+|---------|------|------|-----------|
+| <session_id> | <date> | <task> | <high/medium/low> |
+
+*"None found" if no related sessions*
+
+### Conventions Loaded
+
+- [ ] `knowledge/conventions/main.md` - <status: loaded/not found>
+
+Key conventions for this task:
+- <convention 1>
+- <convention 2>
+
+*"Conventions not found - will extract during research" if missing*
+
+### Relevant Patterns
+
+| Pattern | Path | Applicability |
+|---------|------|---------------|
+| <name> | knowledge/patterns/<name>.md | <how it applies> |
+
+*"No patterns found" if none*
+
+## Relevant Files (from quick scan)
+
+| File | Relevance | Notes |
+|------|-----------|-------|
+| `path/to/file.py` | High | <brief note> |
+| `path/to/another.py` | Medium | <brief note> |
+
+*Top 10 files only - deep analysis in research phase*
 
 ## Working Directory
 
@@ -102,9 +238,13 @@ sources:
 - [ ] Plan: Create implementation plan
 - [ ] Implement: Execute changes
 - [ ] Validate: Verify implementation
+
+## Notes
+
+<Any additional notes from user or context scan>
 ```
 
-### Step 4: Write index.md
+### Step 6: Write index.md
 
 ```markdown
 ---
@@ -119,6 +259,7 @@ updated: <iso8601>
 # Session Index: <session_id>
 
 ## Task
+
 <task_description>
 
 ## Progress
@@ -146,7 +287,25 @@ updated: <iso8601>
 <additional_notes_will_be_appended_here>
 ```
 
-### Step 5: Report
+### Step 7: Determine Next Step
+
+Based on context gathered:
+
+```
+IF open questions identified OR task seems ambiguous:
+    SUGGEST: /rpiv_discuss --topic "scope"
+    REASON: "I have some questions that would help focus the research."
+
+ELSE IF rich context found (conventions, patterns, related sessions):
+    SUGGEST: /rpiv_research
+    REASON: "Good context gathered - ready for deep research."
+
+ELSE:
+    SUGGEST: /rpiv_research
+    REASON: "Standard path - research will gather more context."
+```
+
+### Step 8: Report
 
 ```
 ## RPIV Session Started
@@ -159,7 +318,18 @@ Session ID: <session_id>
 Context: <root|microservice>
 Task: <task_description>
 
-Next: /rpiv_research
+### Context Scan Results
+- Related sessions: <N found>
+- Conventions: <loaded|not found>
+- Patterns: <N found>
+- Relevant files: <N identified>
+
+### User Clarifications
+- <clarification 1>
+- <clarification 2>
+*(or "None gathered" if --minimal or no questions asked)*
+
+Next: <suggested command with reasoning>
 ```
 
 ## Important Notes
@@ -168,6 +338,7 @@ Next: /rpiv_research
 - All subsequent RPIV commands will use this session
 - Context artifact captures the starting state for reproducibility
 - Index artifact tracks progress and links to all session artifacts
+- **Enhanced context scan takes ~2-3 minutes** - use `--minimal` to skip
 
 ## Error Handling
 
@@ -178,3 +349,8 @@ If vault path doesn't exist:
 If task description not provided:
 1. Ask user for task description
 2. Do not proceed until task is defined
+
+If context scan fails:
+1. Log warning but continue
+2. Note "Context scan incomplete" in 00_context.md
+3. Research phase will gather more context anyway
