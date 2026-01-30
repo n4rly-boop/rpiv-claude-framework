@@ -11,9 +11,9 @@ You are tasked with generating or updating technical documentation based on the 
 
 Use the `obsidian` MCP server to save artifacts. Determine repo name with: `basename $(git rev-parse --show-toplevel)`
 
-All documentation goes to `{repo_name}/claude/knowledge/`:
+All documentation goes to `{repo_name}/knowledge/`:
 ```
-{repo_name}/claude/knowledge/
+{repo_name}/knowledge/
 ├── microservices/       # Black-box docs (from root - /service_docs)
 ├── services/            # Internal service docs (from inside repo)
 ├── conventions/         # Code conventions (from /extract_conventions)

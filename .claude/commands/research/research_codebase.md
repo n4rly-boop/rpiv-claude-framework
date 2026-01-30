@@ -74,12 +74,12 @@ Then wait for the user's research query.
 5. **Gather metadata for the research document:**
    - Determine repo name: `basename $(git rev-parse --show-toplevel)`
    - Use the `obsidian` MCP server to save artifacts
-   - If in RPIV session: `{repo_name}/claude/sessions/<session_id>/1X_research.md` (next version)
-   - Standalone research: `{repo_name}/claude/research/YYYY-MM-DD-description.md`
+   - If in RPIV session: `{repo_name}/sessions/<session_id>/1X_research.md` (next version)
+   - Standalone research: `{repo_name}/research/YYYY-MM-DD-description.md`
      - Format: `YYYY-MM-DD-description.md` where:
        - YYYY-MM-DD is today's date
        - description is a brief kebab-case description of the research topic
-     - Example: `myrepo/claude/research/2025-01-08-authentication-flow.md`
+     - Example: `myrepo/research/2025-01-08-authentication-flow.md`
 
 6. **Generate research document:**
    - Use the metadata gathered in step 4
@@ -127,7 +127,7 @@ Then wait for the user's research query.
      [Current patterns, conventions, and design implementations found in the codebase]
 
      ## Related Research
-     [Links to other research documents in {repo_name}/claude/ via obsidian MCP]
+     [Links to other research documents in {repo_name}/ via obsidian MCP]
 
      ## Open Questions
      [Any areas that need further investigation]
@@ -189,5 +189,5 @@ Then wait for the user's research query.
 
 This command integrates with the RPIV workflow:
 - If RPIV session active, writes to session's `1X_research.md` (next version)
-- Standalone usage writes to `{repo}/claude/research/`
+- Standalone usage writes to `{repo}/research/`
 - Consider using `/rpiv_research` for full workflow integration

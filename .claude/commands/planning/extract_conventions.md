@@ -11,9 +11,9 @@ You are tasked with analyzing a codebase to extract and document all conventions
 
 Use the `obsidian` MCP server to save artifacts. Determine repo name with: `basename $(git rev-parse --show-toplevel)`
 
-All extracted documentation goes to `{repo_name}/claude/knowledge/`:
+All extracted documentation goes to `{repo_name}/knowledge/`:
 ```
-{repo_name}/claude/knowledge/
+{repo_name}/knowledge/
 ├── conventions/
 │   └── main.md         # Code style, naming, file structure
 ├── patterns/
@@ -112,7 +112,7 @@ Create dependency map with version requirements.
 
 ### Phase 4: Write Documentation
 
-Use `obsidian` MCP to create/update each file in `{repo_name}/claude/knowledge/`:
+Use `obsidian` MCP to create/update each file in `{repo_name}/knowledge/`:
 
 #### conventions.md Structure:
 ```markdown
@@ -249,7 +249,7 @@ src/
 
 ## Incremental Updates
 
-If `{repo_name}/claude/knowledge/` already exists in vault:
+If `{repo_name}/knowledge/` already exists in vault:
 1. Read existing documentation first
 2. Compare with current analysis
 3. Highlight what changed (new patterns, deprecated patterns)
@@ -262,10 +262,10 @@ After writing all files, provide a summary:
 ## Extraction Complete
 
 Created/Updated:
-- {repo_name}/claude/knowledge/conventions/main.md
-- {repo_name}/claude/knowledge/patterns/main.md
-- {repo_name}/claude/knowledge/architecture.md
-- {repo_name}/claude/knowledge/dependencies.md
+- {repo_name}/knowledge/conventions/main.md
+- {repo_name}/knowledge/patterns/main.md
+- {repo_name}/knowledge/architecture.md
+- {repo_name}/knowledge/dependencies.md
 
 Key Findings:
 - [Notable pattern or convention]
