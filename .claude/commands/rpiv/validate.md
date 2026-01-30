@@ -50,7 +50,7 @@ Specify which session to validate (default: most recent)
 
 ### Step 1: Load Context
 
-1. **Find active session** from `$VAULT_BASE/<repo_name>/claude/sessions/`
+1. **Find active session** from `$VAULT_BASE/<repo_name>/sessions/`
 2. **Find and read latest artifacts**:
    ```bash
    LATEST_IMPL=$(ls -1 $SESSION_PATH/3?_implementation.md 2>/dev/null | sort -V | tail -1)
@@ -458,7 +458,7 @@ ELSE (iteration - 41, 42, 43...):
 ## RPIV Validation Complete
 
 Created/Updated:
-- $VAULT_BASE/<repo_name>/claude/sessions/<session_id>/$NEXT_VERSION
+- $VAULT_BASE/<repo_name>/sessions/<session_id>/$NEXT_VERSION
 
 ### Pass 1 Results (Fast Surface Scan)
 - make check: <PASS/FAIL/SKIP>

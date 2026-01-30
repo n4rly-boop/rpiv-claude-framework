@@ -51,7 +51,7 @@ IF $LATEST_RESEARCH is empty AND --no-research NOT provided:
 
 ### Step 1: Load Session Context
 
-1. **Find active session** from `$VAULT_BASE/<repo_name>/claude/sessions/`
+1. **Find active session** from `$VAULT_BASE/<repo_name>/sessions/`
 2. **Read 00_context.md** for task description
 3. **Find and read latest research** (unless `--no-research`):
    ```bash
@@ -61,7 +61,7 @@ IF $LATEST_RESEARCH is empty AND --no-research NOT provided:
 
 ### Step 2: Load Knowledge Artifacts
 
-Read from `$VAULT_BASE/<repo_name>/claude/knowledge/`:
+Read from `$VAULT_BASE/<repo_name>/knowledge/`:
 - `conventions/main.md` - coding standards
 - `patterns/` - relevant patterns
 - `microservices/` or `services/` - component docs
@@ -299,7 +299,7 @@ From `knowledge/conventions/main.md`:
 ## References
 
 - Research: [$LATEST_RESEARCH](./$LATEST_RESEARCH)
-- Conventions: `$VAULT_BASE/<repo>/claude/knowledge/conventions/main.md`
+- Conventions: `$VAULT_BASE/<repo>/knowledge/conventions/main.md`
 ```
 
 ### Step 6: Update Session Index
@@ -373,7 +373,7 @@ ELSE (iteration - 21, 22, 23...):
 ## RPIV Plan Complete
 
 Created/Updated:
-- $VAULT_BASE/<repo_name>/claude/sessions/<session_id>/$NEXT_VERSION
+- $VAULT_BASE/<repo_name>/sessions/<session_id>/$NEXT_VERSION
 
 Plan Summary:
 - Phases: <N>
@@ -403,7 +403,7 @@ If research missing (without `--no-research`):
 ```
 Error: Research artifact required.
 
-Path checked: $VAULT_BASE/<repo>/claude/sessions/<session>/1?_research.md (no matches)
+Path checked: $VAULT_BASE/<repo>/sessions/<session>/1?_research.md (no matches)
 
 Run `/rpiv_research` first, or use `--no-research` to proceed without research.
 

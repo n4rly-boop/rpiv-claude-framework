@@ -48,7 +48,7 @@ IF $LATEST_PLAN is empty:
     3. Run `/rpiv_implement` again
 
     If you have a plan elsewhere, copy it to:
-    $VAULT_BASE/<repo>/claude/sessions/<session>/2X_plan.md (e.g., 20_plan.md)
+    $VAULT_BASE/<repo>/sessions/<session>/2X_plan.md (e.g., 20_plan.md)
 
     EXIT
 ```
@@ -57,7 +57,7 @@ IF $LATEST_PLAN is empty:
 
 ### Step 1: Load Plan
 
-1. **Find active session** from `$VAULT_BASE/<repo_name>/claude/sessions/`
+1. **Find active session** from `$VAULT_BASE/<repo_name>/sessions/`
 2. **Find and read latest plan**:
    ```bash
    LATEST_PLAN=$(ls -1 $SESSION_PATH/2?_plan.md 2>/dev/null | sort -V | tail -1)
@@ -276,7 +276,7 @@ ELSE (iteration - 31, 32, 33...):
 ## RPIV Implementation Complete
 
 Created/Updated:
-- $VAULT_BASE/<repo_name>/claude/sessions/<session_id>/$NEXT_VERSION
+- $VAULT_BASE/<repo_name>/sessions/<session_id>/$NEXT_VERSION
 
 Summary:
 - Phases completed: <N>/<total>
@@ -312,7 +312,7 @@ Cannot proceed because:
 2. No validation criteria defined
 3. No risk assessment available
 
-Path checked: $VAULT_BASE/<repo>/claude/sessions/<session>/2?_plan.md (no matches)
+Path checked: $VAULT_BASE/<repo>/sessions/<session>/2?_plan.md (no matches)
 
 Required: Run `/rpiv_plan` first.
 ```

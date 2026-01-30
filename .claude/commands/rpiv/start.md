@@ -43,7 +43,7 @@ Initialize a new RPIV (Research -> Plan -> Implement -> Validate) session.
 Use `obsidian` MCP server to create:
 
 ```
-$VAULT_BASE/<repo_name>/claude/sessions/<session_id>/
+$VAULT_BASE/<repo_name>/sessions/<session_id>/
 ├── 00_context.md
 └── index.md
 ```
@@ -152,8 +152,8 @@ updated: <iso8601>
 ## RPIV Session Started
 
 Created/Updated:
-- $VAULT_BASE/<repo_name>/claude/sessions/<session_id>/00_context.md
-- $VAULT_BASE/<repo_name>/claude/sessions/<session_id>/index.md
+- $VAULT_BASE/<repo_name>/sessions/<session_id>/00_context.md
+- $VAULT_BASE/<repo_name>/sessions/<session_id>/index.md
 
 Session ID: <session_id>
 Context: <root|microservice>

@@ -37,7 +37,7 @@ Session resolution:
 
 * If `--session` provided → use it
 * Else → use most recently modified folder under:
-  `$VAULT_BASE/$REPO_NAME/claude/sessions/`
+  `$VAULT_BASE/$REPO_NAME/sessions/`
 
 Baseline commit:
 
@@ -140,7 +140,7 @@ This section helps future sessions (or other developers) understand:
 ### Step 5: Write summary artifact
 
 Write:
-`$VAULT_BASE/$REPO_NAME/claude/sessions/<session_id>/50_session_summary.md`
+`$VAULT_BASE/$REPO_NAME/sessions/<session_id>/50_session_summary.md`
 
 Template:
 

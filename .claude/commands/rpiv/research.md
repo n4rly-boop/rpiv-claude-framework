@@ -25,7 +25,7 @@ Conduct research for an RPIV session using distiller agents. Produces compressed
 ### Step 1: Load Session Context
 
 1. **Find active session**:
-   - Read most recent session from `$VAULT_BASE/<repo_name>/claude/sessions/`
+   - Read most recent session from `$VAULT_BASE/<repo_name>/sessions/`
    - Or use `--session` argument if provided
 
 2. **Read 00_context.md** to understand:
@@ -42,7 +42,7 @@ Based on context type, spawn appropriate distillers:
 ```
 Agent 1: microservice-distiller (per detected microservice)
 - Document each nested repo as black-box
-- Output to: $VAULT_BASE/<repo_name>/claude/knowledge/microservices/<name>.md
+- Output to: $VAULT_BASE/<repo_name>/knowledge/microservices/<name>.md
 
 Agent 2: codebase-locator
 - Find relevant files for the task
@@ -58,7 +58,7 @@ Agent 3: codebase-pattern-finder
 ```
 Agent 1: repo-doc-distiller
 - Comprehensive internal documentation
-- Output to: $VAULT_BASE/<repo_name>/claude/knowledge/services/<repo_name>.md
+- Output to: $VAULT_BASE/<repo_name>/knowledge/services/<repo_name>.md
 
 Agent 2: codebase-analyzer
 - Analyze specific components related to task
@@ -74,7 +74,7 @@ Agent 3: codebase-pattern-finder
 ```
 Agent 4: convention-extractor (via extract_conventions logic)
 - If conventions.md doesn't exist, extract conventions
-- Update: $VAULT_BASE/<repo_name>/claude/knowledge/conventions/main.md
+- Update: $VAULT_BASE/<repo_name>/knowledge/conventions/main.md
 ```
 
 ### Step 3: Synthesize Findings
@@ -152,7 +152,7 @@ sources:
 
 ## Conventions to Follow
 
-Reference: `$VAULT_BASE/<repo_name>/claude/knowledge/conventions/main.md`
+Reference: `$VAULT_BASE/<repo_name>/knowledge/conventions/main.md`
 
 Key conventions for this task:
 - <convention 1>
@@ -230,9 +230,9 @@ ELSE (iteration - 11, 12, 13...):
 ## RPIV Research Complete
 
 Created/Updated:
-- $VAULT_BASE/<repo_name>/claude/sessions/<session_id>/$NEXT_VERSION
-- $VAULT_BASE/<repo_name>/claude/knowledge/microservices/*.md (if root)
-- $VAULT_BASE/<repo_name>/claude/knowledge/conventions/main.md
+- $VAULT_BASE/<repo_name>/sessions/<session_id>/$NEXT_VERSION
+- $VAULT_BASE/<repo_name>/knowledge/microservices/*.md (if root)
+- $VAULT_BASE/<repo_name>/knowledge/conventions/main.md
 
 Key Findings:
 - <finding 1>

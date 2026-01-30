@@ -15,7 +15,7 @@ This document defines non-negotiable rules for Claude agents working in this rep
 - **NEVER create or use `.claude/artifacts` directory**
 - **NEVER use symlinks to mirror artifacts**
 - Vault base: `$VAULT_BASE` (default: `$HOME/context_vault`)
-- Repo artifacts go to: `$VAULT_BASE/<repo_name>/claude/...`
+- Repo artifacts go to: `$VAULT_BASE/<repo_name>/...`
 
 ### 3. Context Compression Via Distillers
 - **NEVER paste large files or code dumps into chat**
@@ -33,7 +33,7 @@ This document defines non-negotiable rules for Claude agents working in this rep
 
 ### Session Artifacts (ephemeral, per-session)
 ```
-$VAULT_BASE/<repo_name>/claude/sessions/<session_id>/
+$VAULT_BASE/<repo_name>/sessions/<session_id>/
 ├── 00_context.md         # Initial context snapshot (never versioned)
 ├── 1X_research.md        # Research findings (10, 11, 12...)
 ├── 2X_plan.md            # Implementation plan (20, 21, 22...)
@@ -62,7 +62,7 @@ Artifacts are **NEVER overwritten** between RPIV iterations:
 
 ### Stable Knowledge (persistent, updated incrementally)
 ```
-$VAULT_BASE/<repo_name>/claude/knowledge/
+$VAULT_BASE/<repo_name>/knowledge/
 ├── microservices/
 │   ├── <name>.md      # Black-box docs (from root repo perspective)
 │   └── index.md       # Microservice index
@@ -142,11 +142,11 @@ sources:
   - Public interfaces (APIs, ports)
   - Integration points
   - Deploy surface
-- Store in: `$VAULT_BASE/<root_repo>/claude/knowledge/microservices/`
+- Store in: `$VAULT_BASE/<root_repo>/knowledge/microservices/`
 
 ### From Inside Microservice
 - Document comprehensively
-- Store in: `$VAULT_BASE/<microservice_repo>/claude/knowledge/`
+- Store in: `$VAULT_BASE/<microservice_repo>/knowledge/`
 
 ## Output Requirements
 
