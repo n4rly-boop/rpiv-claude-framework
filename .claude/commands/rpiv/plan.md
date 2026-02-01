@@ -181,8 +181,8 @@ At line X, add:
 [Similar structure]
 
 ### Validation
-- [ ] `make check` - formatting, linting, type checking
-- [ ] `make test` - unit tests
+- [ ] `/tooling check` - formatting, linting, type checking
+- [ ] `/tooling test` - unit tests
 - [ ] Manual: <specific verification step from Manual Testing Plan>
 
 ---

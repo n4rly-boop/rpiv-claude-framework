@@ -127,8 +127,8 @@ Based on: [$LATEST_PLAN](./$LATEST_PLAN)
 
 #### Validation Results
 
-- [x] make check - PASSED
-- [x] make test - PASSED
+- [x] /tooling check - PASSED
+- [x] /tooling test - PASSED
 - [ ] Manual: <pending>
 
 **Status**: <complete/blocked/in_progress>
@@ -148,8 +148,8 @@ For each phase in the plan:
    - Patterns from `knowledge/patterns/`
 
 4. **Run phase validation**:
-   - Execute `make check` (formatting, linting, type checking)
-   - Execute `make test` (unit tests)
+   - Run `/tooling check` (formatting, linting, type checking)
+   - Run `/tooling test` (unit tests)
    - Execute manual tests from plan
    - If failures, fix before proceeding
 
@@ -183,8 +183,8 @@ Changes made:
 - `file2.py:12` - Updated import
 
 Validation:
-- [x] make check - PASSED
-- [x] make test - PASSED (15/15)
+- [x] /tooling check - PASSED
+- [x] /tooling test - PASSED (15/15)
 - [ ] Manual verification needed
 
 Deviations: [None / List]
@@ -294,9 +294,9 @@ Note: Run validation to verify implementation meets all success criteria.
 ## Important Notes
 
 - **NEVER skip plan requirement** - this is enforced, not optional
-- **Use make commands ONLY** for validation - never invoke ruff, mypy, black, or pytest directly
-  - ✓ CORRECT: `make check`, `make test`
-  - ✗ WRONG: `ruff check .`, `pytest tests/`, `black .`
+- **Use /tooling skill** for validation - never invoke linters/testers directly
+  - ✓ CORRECT: `/tooling check`, `/tooling test`
+  - ✗ WRONG: `ruff check .`, `pytest tests/`, `make check`
 - **Document ALL deviations** from plan
 - **Run validation after each phase** before proceeding
 - **Keep tracking artifact updated** in real-time
@@ -321,7 +321,7 @@ If validation fails:
 ```
 Phase [N] Validation Failed
 
-Command: make check  (or: make test)
+Command: /tooling check  (or: /tooling test)
 Exit code: 1
 Output: [summary]
 
@@ -330,8 +330,8 @@ Options:
 2. Mark phase incomplete and document blocker
 3. Rollback phase changes
 
-Note: Only use make commands (make check, make test).
-Never run ruff, mypy, black, or pytest directly.
+Note: Use the /tooling skill for validation.
+Never run linters or test frameworks directly.
 
 How should I proceed?
 ```

@@ -11,13 +11,13 @@ Run the complete pre-PR checklist to ensure code is ready for review.
 Execute in order:
 
 ### 1. Format Code
-```bash
-make format
+```
+/tooling format
 ```
 
 ### 2. Run Checks
-```bash
-make check
+```
+/tooling check
 ```
 
 If checks fail:
@@ -26,8 +26,8 @@ If checks fail:
 - Re-run format and check
 
 ### 3. Run Tests
-```bash
-make tests
+```
+/tooling test
 ```
 
 If tests fail:
@@ -42,8 +42,10 @@ git diff --name-only HEAD~1
 ```
 
 ### 5. Final Verification
-```bash
-make format && make check && make tests
+```
+/tooling format
+/tooling check
+/tooling test
 ```
 
 ## Output

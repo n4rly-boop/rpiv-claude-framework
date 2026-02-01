@@ -31,13 +31,13 @@ Here's the entire auth middleware:
 [200 lines of code]
 ```
 
-### 3. Make Commands Only
+### 3. Use /tooling Skill
 
 **DO**:
-```bash
-make check
-make test
-make format
+```
+/tooling check
+/tooling test
+/tooling format
 ```
 
 **DON'T**:
@@ -46,6 +46,7 @@ ruff check .
 pytest tests/
 black .
 mypy src/
+make check  # don't use make directly either
 ```
 
 ---
@@ -122,8 +123,8 @@ mypy src/
 At line 45, add JWT validation logic following pattern in `knowledge/patterns/middleware.md`
 
 ### Validation
-- [ ] make check
-- [ ] make test
+- [ ] /tooling check
+- [ ] /tooling test
 - [ ] Manual: curl -H "Authorization: Bearer <token>" /api/protected
 ```
 
@@ -143,15 +144,15 @@ Changes made:
 - `auth.py:45-67` - Added JWT validation
 
 Validation:
-- [x] make check - PASSED
-- [x] make test - PASSED
+- [x] /tooling check - PASSED
+- [x] /tooling test - PASSED
 
 Proceed to Phase 2? (y/n)
 ```
 
 **Bad**: All at once without checks
 - Implementing everything before any validation
-- Skipping `make check` between phases
+- Skipping `/tooling check` between phases
 
 ### Validation Phase
 
