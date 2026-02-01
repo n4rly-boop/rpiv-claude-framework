@@ -199,6 +199,37 @@ Next: <suggested_next_command>
    - ✅ ALWAYS: `/tooling check`, `/tooling test`, `/tooling format`
 9. Creating plans without manual testing steps
 10. Skipping Pass 2 validation when critical issues exist (unless `--fast` flag)
+11. **Accessing .env files in ANY way** (see Security Restrictions below)
+
+## Security Restrictions
+
+### .env File Protection (Enforced via PreToolUse Hook)
+
+**.env files are STRICTLY OFF-LIMITS.** This is enforced by `.claude/hooks/protect-env-files.py`.
+
+**Blocked operations include:**
+- ❌ `Read(.env)` - Direct file read
+- ❌ `cat .env`, `head .env`, `tail .env` - Bash read commands
+- ❌ `grep pattern .env` - Searching in .env
+- ❌ `cp .env /tmp/x` - Copying (enables later reading)
+- ❌ `tar cvf archive.tar .env` - Archiving
+- ❌ `source .env` - Sourcing/executing
+- ❌ Any Grep tool query targeting .env files
+
+**Protected patterns:**
+- `.env` - Base environment file
+- `.env.*` - All variants (`.env.local`, `.env.production`, etc.)
+- `**/.env` - .env files in any directory
+
+**Why this matters:**
+- .env files contain secrets (API keys, database passwords, tokens)
+- Simple "deny" rules can be bypassed (e.g., `cp .env /tmp/x && cat /tmp/x`)
+- This hook blocks ALL access vectors, not just direct reads
+
+**If you need environment variables:**
+1. Ask the user for specific values
+2. Reference `.env.example` for variable names (not values)
+3. Use documented defaults from README or config files
 
 ## Validation Best Practices
 
