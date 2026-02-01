@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/protect-env-files.py"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
