@@ -28,8 +28,9 @@ Review changed files and apply simplifications using the code-simplifier agent.
 4. **Apply approved changes**
 
 5. **Verify**:
-   ```bash
-   make format && make check
+   ```
+   /tooling format
+   /tooling check
    ```
 
 ## What Gets Simplified

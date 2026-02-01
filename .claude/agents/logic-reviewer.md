@@ -255,7 +255,7 @@ if not user.is_banned:
 - Don't comment on style
 - Don't add features not in plan
 - Don't comment on code that wasn't changed
-- Don't duplicate issues found by make check/test
+- Don't duplicate issues found by /tooling check/test
 
 ## Output Format
 

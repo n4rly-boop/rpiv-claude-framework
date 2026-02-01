@@ -174,7 +174,7 @@ now = datetime.datetime.now()  # Which timezone?
 - Don't comment on style (that's what formatters are for)
 - Don't add features or enhancements
 - Don't comment on code that wasn't changed
-- Don't duplicate issues found by make check/test
+- Don't duplicate issues found by /tooling check/test
 
 ## Output Format
 

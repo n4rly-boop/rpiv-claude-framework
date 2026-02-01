@@ -10,8 +10,8 @@ Run two-pass validation pipeline on implementation.
 ## Two-Pass System
 
 ### Pass 1: Fast Surface Scan (Always Runs)
-- `make check` - formatting, linting, type checking
-- `make test` - unit tests
+- `/tooling check` - formatting, linting, type checking
+- `/tooling test` - unit tests
 - `code-reviewer` - general code review
 - **Fail-all-at-once**: Collects ALL issues, doesn't stop early
 - **Duration**: ~5 minutes
@@ -72,29 +72,22 @@ git status --porcelain              # Uncommitted changes
 
 **IMPORTANT: Fail-all-at-once - collect ALL issues, never exit early**
 
-#### 3.1: Check for Makefile Targets
-```bash
-make -n check 2>/dev/null && echo "check target exists"
-make -n test 2>/dev/null && echo "test target exists"
+#### 3.1: Run Tooling Checks (Collect All Failures)
+
+Use the `/tooling` skill to run project checks. The skill auto-detects project type or uses project-specific configuration.
+
+```
+/tooling check   # Linting, type checking - capture full output
+/tooling test    # Test suite - capture full output even if check failed
 ```
 
-#### 3.2: Run Checks (Collect All Failures)
-```bash
-# Run make check - ALWAYS capture full output, don't stop on failure
-CHECK_EXIT=0
-if make -n check 2>/dev/null; then
-    make check 2>&1 | tee check.log || CHECK_EXIT=$?
-fi
+**Important:**
+- Always run BOTH check and test, even if one fails
+- Capture full output from each
+- The tooling skill handles project-specific command detection
 
-# Run make test - ALWAYS run even if check failed
-TEST_EXIT=0
-if make -n test 2>/dev/null; then
-    make test 2>&1 | tee test.log || TEST_EXIT=$?
-fi
-```
-
-#### 3.3: Run code-reviewer Agent
-**Always run, even if make checks failed**
+#### 3.2: Run code-reviewer Agent
+**Always run, even if tooling checks failed**
 
 ```bash
 # Spawn code-reviewer agent
@@ -105,11 +98,11 @@ Task(
 )
 ```
 
-#### 3.4: Analyze Pass 1 Results
+#### 3.3: Analyze Pass 1 Results
 
 Count issues by severity:
-- Parse `make check` output for errors
-- Parse `make test` output for failures
+- Parse `/tooling check` output for errors
+- Parse `/tooling test` output for failures
 - Parse code-reviewer output for Critical/Warning/Suggestion
 
 **Determine if Pass 2 needed:**
@@ -208,8 +201,8 @@ sources:
 
 | Check | Status | Critical | Warnings | Details |
 |-------|--------|----------|----------|---------|
-| make check | PASS/FAIL/SKIP | N | N | <summary> |
-| make test | PASS/FAIL/SKIP | N | N | <summary> |
+| /tooling check | PASS/FAIL/SKIP | N | N | <summary> |
+| /tooling test | PASS/FAIL/SKIP | N | N | <summary> |
 | code-reviewer | PASS/WARN/FAIL | N | N | <summary> |
 
 **Pass 1 Total**: Critical: N | Warnings: N | Suggestions: N
@@ -245,9 +238,10 @@ Files validated:
 
 ## Pass 1 Details: Fast Surface Scan
 
-### make check
+### /tooling check
 
-**Status**: PASS / FAIL / SKIPPED (no target)
+**Status**: PASS / FAIL / SKIPPED (not configured)
+**Command**: `<actual command run>`
 **Exit Code**: <N>
 
 ```
@@ -257,9 +251,10 @@ Files validated:
 **Issues Found**: <N>
 **Critical**: <N> | **Warnings**: <N>
 
-### make test
+### /tooling test
 
-**Status**: PASS / FAIL / SKIPPED (no target)
+**Status**: PASS / FAIL / SKIPPED (not configured)
+**Command**: `<actual command run>`
 **Exit Code**: <N>
 
 ```
@@ -461,8 +456,8 @@ Created/Updated:
 - $VAULT_BASE/<repo_name>/sessions/<session_id>/$NEXT_VERSION
 
 ### Pass 1 Results (Fast Surface Scan)
-- make check: <PASS/FAIL/SKIP>
-- make test: <PASS/FAIL/SKIP> (<N>/<total>)
+- /tooling check: <PASS/FAIL/SKIP>
+- /tooling test: <PASS/FAIL/SKIP> (<N>/<total>)
 - code-reviewer: <APPROVE/REQUEST_CHANGES>
 
 Pass 1 Issues: Critical: <N> | Warnings: <N> | Suggestions: <N>
@@ -492,7 +487,7 @@ Pass 2 Issues: Critical: <N> | Warnings: <N> | Suggestions: <N>
 Next Steps:
 <IF PASS:>
 - ✓ All checks passed
-- Run `make format` if not already done
+- Run `/tooling format` if not already done
 - Ready for /commit
 
 <IF NEEDS_ATTENTION:>
@@ -514,16 +509,17 @@ Next Steps:
   - Use `--fast` to skip Pass 2 for quick iterations
 
 - **Fail-All-At-Once** - Never exits early, collects ALL issues
-  - make check runs even if make test would fail
-  - Agents run even if make commands fail
+  - `/tooling check` runs even if `/tooling test` would fail
+  - Agents run even if tooling commands fail
   - You get complete picture in one run
 
-- **Use make commands ONLY** - never invoke ruff, mypy, black, or pytest directly
-  - ✓ CORRECT: `make check`, `make test`
-  - ✗ WRONG: `ruff check .`, `pytest tests/`, `black .`
+- **Use /tooling skill** - never invoke linters/testers directly
+  - ✓ CORRECT: `/tooling check`, `/tooling test`, `/tooling format`
+  - ✗ WRONG: `ruff check .`, `pytest tests/`, `black .`, `make check`
+  - The tooling skill handles project-specific command detection
 
 - **Pass 2 Trigger** - Only on CRITICAL issues (not warnings)
-  - Critical from make check/test failures
+  - Critical from /tooling check/test failures
   - Critical from code-reviewer agent
   - Warnings alone don't trigger Pass 2
 
@@ -548,10 +544,12 @@ Changed files detected:
 Continuing with Pass 1...
 ```
 
-If make targets don't exist:
+If tooling not configured:
 ```
-Note: make check target not found - skipping
-Note: make test target not found - skipping
+Note: /tooling check skipped - no tooling configured for this project
+Note: /tooling test skipped - no tooling configured for this project
+
+Tip: Run /extract_conventions to configure project tooling.
 
 Continuing with agent review...
 ```
@@ -561,8 +559,8 @@ If Pass 1 finds critical issues:
 Pass 1 Complete - Critical Issues Found
 
 Critical Issues: <N>
-- make check: <N> errors
-- make test: <N> failures
+- /tooling check: <N> errors
+- /tooling test: <N> failures
 - code-reviewer: <N> critical
 
 Triggering Pass 2 (Deep Multi-Agent Analysis)...
@@ -582,8 +580,8 @@ Validation FAILED
 Total Critical Issues: <N>
 
 Pass 1:
-- make check: <N> errors
-- make test: <N> failures
+- /tooling check: <N> errors
+- /tooling test: <N> failures
 - code-reviewer: <N> critical
 
 Pass 2 (triggered):

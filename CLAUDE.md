@@ -139,7 +139,7 @@ phase_after: context|research|plan|implement|validate
 
 6. **Validate** (`/rpiv_validate`)
    - **Two-Pass Validation System**:
-     - **Pass 1** (always, ~5 min): `make check`, `make test`, code-reviewer
+     - **Pass 1** (always, ~5 min): `/tooling check`, `/tooling test`, code-reviewer
        - Fail-all-at-once: collects ALL issues, never exits early
      - **Pass 2** (auto-triggers on critical issues, ~15-20 min):
        - Runs 4 specialist agents in parallel:
@@ -194,9 +194,9 @@ Next: <suggested_next_command>
 5. Running `/rpiv_plan` without research artifact (unless `--no-research`)
 6. Distiller outputs exceeding 400 lines
 7. Returning raw agent outputs without vault persistence
-8. **Running tools directly instead of make commands**:
-   - ❌ NEVER: `ruff check .`, `black .`, `mypy .`, `pytest tests/`
-   - ✅ ALWAYS: `make check`, `make test`, `make format`
+8. **Running linters/testers directly instead of /tooling skill**:
+   - ❌ NEVER: `ruff check .`, `black .`, `mypy .`, `pytest tests/`, `make check`
+   - ✅ ALWAYS: `/tooling check`, `/tooling test`, `/tooling format`
 9. Creating plans without manual testing steps
 10. Skipping Pass 2 validation when critical issues exist (unless `--fast` flag)
 
@@ -215,17 +215,23 @@ Next: <suggested_next_command>
 - ❌ Before creating PR (always use full validation)
 - ❌ After major refactoring (need comprehensive analysis)
 
-### Make Commands Policy
-This repo uses Poetry + Make for consistency:
-- `make check` → `poetry run black --check` + `poetry run ruff check` + `poetry run mypy`
-- `make test` → `poetry run pytest`
-- `make format` → `poetry run black` + `poetry run ruff check --fix`
+### Tooling Skill Policy
 
-**Why enforce make commands?**
-1. Ensures correct Poetry environment
-2. Runs all checks in correct order
-3. Uses correct directories (CHECK_DIRS)
-4. Consistent across all developers/agents
+Use the `/tooling` skill for all code quality operations:
+- `/tooling check` - linting, type checking, formatting verification
+- `/tooling test` - run test suite
+- `/tooling format` - auto-fix formatting issues
+
+**How it works:**
+1. **Auto-detection** - Skill detects project type (Python, Node.js, Rust, Go, etc.)
+2. **Project-specific config** - Run `/extract_conventions` to generate custom tooling config
+3. **Consistent interface** - Same commands work across all projects
+
+**Why use /tooling skill?**
+1. Abstracts project-specific tooling (no need to know if project uses Make, npm, Poetry, etc.)
+2. Consistent across all projects in the framework
+3. Auto-detects appropriate commands for the project type
+4. Can be customized per-project via `/extract_conventions`
 
 ### Manual Testing Requirements
 Every plan MUST include:

@@ -123,11 +123,12 @@ The validation phase uses a two-pass approach to balance speed with thoroughness
 │                        (~5 minutes)                         │
 │                                                             │
 │   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
-│   │ make check  │  │ make test   │  │ code-       │        │
-│   │             │  │             │  │ reviewer    │        │
-│   │ format      │  │ unit tests  │  │             │        │
-│   │ lint        │  │             │  │ general     │        │
-│   │ type check  │  │             │  │ review      │        │
+│   │ /tooling    │  │ /tooling    │  │ code-       │        │
+│   │ check       │  │ test        │  │ reviewer    │        │
+│   │             │  │             │  │             │        │
+│   │ format      │  │ unit tests  │  │ general     │        │
+│   │ lint        │  │             │  │ review      │        │
+│   │ type check  │  │             │  │             │        │
 │   └──────┬──────┘  └──────┬──────┘  └──────┬──────┘        │
 │          │                │                │                │
 │          └────────────────┼────────────────┘                │
@@ -175,8 +176,8 @@ The validation phase uses a two-pass approach to balance speed with thoroughness
 - **Duration**: ~5 minutes
 - **Always runs**
 - **Components**:
-  - `make check` - formatting, linting, type checking
-  - `make test` - unit tests
+  - `/tooling check` - formatting, linting, type checking
+  - `/tooling test` - unit tests
   - `code-reviewer` - general code review
 - **Key feature**: Fail-all-at-once (collects ALL issues, never exits early)
 

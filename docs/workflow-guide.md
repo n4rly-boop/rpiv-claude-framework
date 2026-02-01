@@ -303,8 +303,8 @@ Options:
 At line X, add: [code]
 
 ### Validation
-- [ ] make check
-- [ ] make test
+- [ ] /tooling check
+- [ ] /tooling test
 - [ ] Manual: <specific step>
 
 ---
@@ -380,7 +380,7 @@ Required action:
    - Marks phase as `in_progress`
    - Reads all files mentioned in phase
    - Applies changes following plan, conventions, patterns
-   - Runs phase validation (`make check`, `make test`)
+   - Runs phase validation (`/tooling check`, `/tooling test`)
    - If failures: fix before proceeding
    - Updates tracking artifact
    - Asks to proceed to next phase
@@ -410,8 +410,8 @@ Changes made:
 - `file2.py:12` - Updated import
 
 Validation:
-- [x] make check - PASSED
-- [x] make test - PASSED (15/15)
+- [x] /tooling check - PASSED
+- [x] /tooling test - PASSED (15/15)
 - [ ] Manual verification needed
 
 Deviations: None
@@ -451,8 +451,8 @@ Next: /rpiv_validate
 ### Two-Pass System
 
 #### Pass 1: Fast Surface Scan (~5 min)
-- `make check` - formatting, linting, type checking
-- `make test` - unit tests
+- `/tooling check` - formatting, linting, type checking
+- `/tooling test` - unit tests
 - `code-reviewer` - general code review
 - **Fail-all-at-once**: Collects ALL issues, never exits early
 
@@ -477,9 +477,8 @@ Skip Pass 2 for quick iterations:
 2. **Discovers changed files** via git diff
 
 3. **Runs Pass 1**:
-   - Checks for Makefile targets
-   - Runs `make check` (captures full output)
-   - Runs `make test` (even if check failed)
+   - Runs `/tooling check` (captures full output)
+   - Runs `/tooling test` (even if check failed)
    - Spawns `code-reviewer` agent
    - Counts issues by severity
 
@@ -508,8 +507,8 @@ Created/Updated:
 - $VAULT_BASE/<repo>/sessions/<session_id>/40_validation.md
 
 ### Pass 1 Results (Fast Surface Scan)
-- make check: PASS
-- make test: PASS (15/15)
+- /tooling check: PASS
+- /tooling test: PASS (15/15)
 - code-reviewer: APPROVE
 
 Pass 1 Issues: Critical: 0 | Warnings: 2 | Suggestions: 3
@@ -524,7 +523,7 @@ Pass 1 Issues: Critical: 0 | Warnings: 2 | Suggestions: 3
 
 Next Steps:
 - ✓ All checks passed
-- Run `make format` if not already done
+- Run `/tooling format` if not already done
 - Ready for /commit
 ```
 

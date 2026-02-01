@@ -128,11 +128,10 @@ tests/
 ```
 
 ### Running Tests
-```bash
-make test          # All tests
-make test-unit     # Unit only
-make test-int      # Integration only
 ```
+/tooling test      # Run project test suite
+```
+(Project-specific test commands configured via /extract_conventions)
 
 ### Coverage Requirements
 - Minimum: [X]%

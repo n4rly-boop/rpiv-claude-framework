@@ -210,7 +210,7 @@ Next: /rpiv_validate
 ```
 
 **Two-Pass System**:
-- **Pass 1** (~5 min): `make check`, `make test`, `code-reviewer`
+- **Pass 1** (~5 min): `/tooling check`, `/tooling test`, `code-reviewer`
 - **Pass 2** (~15-20 min): 4 specialist agents in parallel (auto-triggers on critical issues)
 
 **Creates**:
@@ -286,9 +286,9 @@ Next: /commit or fix issues
 ```
 
 **Process**:
-1. `make format`
-2. `make check` (fix if fails)
-3. `make test` (fix if fails)
+1. `/tooling format`
+2. `/tooling check` (fix if fails)
+3. `/tooling test` (fix if fails)
 4. Launch `code-simplifier` agent
 5. Final verification
 
@@ -379,7 +379,7 @@ Status: READY | NEEDS WORK
 2. Spawn `code-simplifier` agent
 3. Review suggestions
 4. Apply approved changes
-5. Verify with `make format && make check`
+5. Verify with `/tooling format` and `/tooling check`
 
 **What Gets Simplified**:
 - Verbose conditionals → concise expressions

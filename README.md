@@ -80,8 +80,8 @@ RPIV provides a disciplined approach to software engineering tasks with Claude C
 
 ```
 Pass 1 (Fast ~5min)          Pass 2 (Deep ~15-20min)
-├── make check               ├── defensive-reviewer
-├── make test                ├── integration-reviewer
+├── /tooling check           ├── defensive-reviewer
+├── /tooling test            ├── integration-reviewer
 └── code-reviewer            ├── security-reviewer
                              └── logic-reviewer
 ```
