@@ -10,9 +10,41 @@ Conduct research for an RPIV session using distiller agents. Produces compressed
 ## Usage
 
 ```
-/rpiv_research                           # Use current session
+/rpiv_research                           # Auto-detect tier from context
+/rpiv_research --micro                   # Minimal: synthesize from 00_context.md only
+/rpiv_research --focused                 # Targeted: single distiller on specific paths
+/rpiv_research --full                    # Comprehensive: all distillers (default for complex)
 /rpiv_research --session <session_id>    # Specify session
-/rpiv_research --focus "authentication"  # Focus area
+/rpiv_research --focus "authentication"  # Focus area (combines with any tier)
+```
+
+## Research Tiers
+
+| Tier | When to Use | Agents | Tokens |
+|------|-------------|--------|--------|
+| **Micro** | Bug fix, clear scope, <3 files | None (synthesis only) | ~5-10K |
+| **Focused** | Single component, 3-10 files | codebase-analyzer only | ~15-25K |
+| **Full** | Multi-component, architectural | All distillers | ~40-60K |
+
+### Tier Auto-Detection (from 00_context.md)
+
+```
+IF --micro or --focused or --full flag provided:
+    USE specified tier
+
+ELSE IF 00_context.md has "recommended_research_tier":
+    USE recommended tier from context
+
+ELSE (fallback heuristics):
+    relevant_files = count from "Relevant Files" section
+    task_keywords = check for "refactor", "add", "implement", "fix"
+
+    IF relevant_files <= 3 AND task_keywords contains "fix":
+        SUGGEST: --micro
+    ELSE IF relevant_files <= 10 AND single directory pattern:
+        SUGGEST: --focused
+    ELSE:
+        DEFAULT: --full
 ```
 
 ## Prerequisites
@@ -22,7 +54,7 @@ Conduct research for an RPIV session using distiller agents. Produces compressed
 
 ## Process
 
-### Step 1: Load Session Context
+### Step 1: Load Session Context & Determine Tier
 
 1. **Find active session**:
    - Read most recent session from `$VAULT_BASE/<repo_name>/sessions/`
@@ -32,10 +64,68 @@ Conduct research for an RPIV session using distiller agents. Produces compressed
    - Task description
    - Context type (root/microservice)
    - Repo information
+   - **Recommended research tier** (if present)
+   - **Relevant files count** (for auto-detection)
 
-### Step 2: Spawn Distiller Agents (Parallel)
+3. **Determine research tier**:
+   ```
+   IF explicit flag (--micro, --focused, --full):
+       tier = flag value
+   ELSE IF 00_context.md has "recommended_research_tier":
+       tier = recommended value
+       INFORM user: "Using recommended tier: <tier> (override with --micro/--focused/--full)"
+   ELSE:
+       tier = "full"  # safe default
+   ```
 
-Based on context type, spawn appropriate distillers:
+### Step 2: Execute Research by Tier
+
+**Branch based on tier:**
+
+---
+
+#### TIER: Micro (No Agents)
+
+Skip all distillers. Synthesize directly from existing context.
+
+```
+1. Read 00_context.md thoroughly
+2. Read any patterns/conventions referenced in context
+3. If --focus provided, use Grep to find specific references
+4. Synthesize findings into research artifact
+
+NO AGENT SPAWNING - direct synthesis only
+```
+
+**Output budget**: 100-200 lines (lighter artifact)
+
+---
+
+#### TIER: Focused (Single Agent)
+
+Spawn only `codebase-analyzer` on specific paths from context.
+
+```
+Agent: codebase-analyzer
+Prompt: "Analyze these specific files for task: <task_description>
+        Files: <relevant_files_from_context>
+        Focus: <--focus value if provided>
+        Return: Implementation details, dependencies, patterns used"
+```
+
+**If conventions not found**: Also spawn convention-extractor (one-time cost)
+
+**Output budget**: 200-300 lines
+
+---
+
+#### TIER: Full (All Agents)
+
+Spawn all distillers as documented below.
+
+### Step 2-Full: Spawn Distiller Agents (Parallel)
+
+**Only for --full tier.** Based on context type, spawn appropriate distillers:
 
 **If in ROOT repo:**
 
@@ -115,14 +205,17 @@ repo: <repo_name>
 scope: <root|microservice>
 session: <session_id>
 type: research
+tier: <micro|focused|full>
 created: <iso8601>
 updated: <iso8601>
 sources:
-  - Agent outputs
+  - Agent outputs (if tier=focused or full)
   - <list_of_paths_examined>
 ---
 
 # Research: <task_description>
+
+**Research Tier:** <micro|focused|full> *(override with --micro/--focused/--full)*
 
 ## Summary
 
@@ -249,10 +342,13 @@ ELSE:
 ```
 ## RPIV Research Complete
 
+Research Tier: <micro|focused|full>
+Tokens Saved: <estimate vs full tier>
+
 Created/Updated:
 - $VAULT_BASE/<repo_name>/sessions/<session_id>/$NEXT_VERSION
-- $VAULT_BASE/<repo_name>/knowledge/microservices/*.md (if root)
-- $VAULT_BASE/<repo_name>/knowledge/conventions/main.md
+- $VAULT_BASE/<repo_name>/knowledge/microservices/*.md (if root, full tier only)
+- $VAULT_BASE/<repo_name>/knowledge/conventions/main.md (if extracted)
 
 Key Findings:
 - <finding 1>
@@ -263,6 +359,8 @@ Open Questions: <N>
 Risks Identified: <N>
 
 Next: <suggested command with reasoning>
+
+*(To re-run with more depth: /rpiv_research --full)*
 ```
 
 ## Important Notes

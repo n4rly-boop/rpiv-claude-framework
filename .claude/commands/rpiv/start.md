@@ -85,6 +85,48 @@ Aggregate findings:
 - Patterns found: [list of pattern names]
 - Relevant files: [list of paths]
 
+#### 2.4: Determine Recommended Research Tier
+
+Analyze context to recommend optimal research depth:
+
+```
+# Inputs for heuristic
+relevant_files_count = len(relevant_files)
+task_lower = task_description.lower()
+directories_touched = unique directories from relevant_files
+conventions_exist = conventions loaded from vault
+
+# Task type detection
+is_bug_fix = any(word in task_lower for word in ["fix", "bug", "patch", "hotfix"])
+is_simple_change = any(word in task_lower for word in ["update", "change", "modify", "rename"])
+is_feature = any(word in task_lower for word in ["add", "implement", "create", "build"])
+is_refactor = any(word in task_lower for word in ["refactor", "restructure", "reorganize"])
+is_architectural = any(word in task_lower for word in ["architecture", "migrate", "integrate", "overhaul"])
+
+# Directory spread
+single_directory = len(directories_touched) <= 1
+localized_change = len(directories_touched) <= 3
+
+# Decision tree
+IF relevant_files_count <= 3 AND (is_bug_fix OR is_simple_change) AND conventions_exist:
+    recommended_tier = "micro"
+    reason = "Small scope with existing conventions - synthesis sufficient"
+
+ELSE IF relevant_files_count <= 10 AND localized_change AND NOT is_architectural:
+    recommended_tier = "focused"
+    reason = "Localized change - targeted analysis sufficient"
+
+ELSE IF is_architectural OR is_refactor OR relevant_files_count > 10:
+    recommended_tier = "full"
+    reason = "Cross-cutting change - comprehensive research needed"
+
+ELSE:
+    recommended_tier = "focused"  # safe middle ground
+    reason = "Moderate scope - targeted analysis recommended"
+```
+
+**Store in context for research phase to use.**
+
 ### Step 3: Interactive Clarification
 
 Based on scan results, ask targeted questions using `AskUserQuestion`:
@@ -144,6 +186,8 @@ scope: <root|microservice>
 microservice: <name_or_null>
 session: <session_id>
 type: context
+recommended_research_tier: <micro|focused|full>
+tier_reason: <reason from heuristic>
 created: <iso8601>
 updated: <iso8601>
 sources:
@@ -220,6 +264,20 @@ Key conventions for this task:
 | `path/to/another.py` | Medium | <brief note> |
 
 *Top 10 files only - deep analysis in research phase*
+
+## Recommended Research Tier
+
+| Tier | Reason |
+|------|--------|
+| **<micro\|focused\|full>** | <reason from heuristic> |
+
+**Override:** Use `/rpiv_research --micro`, `--focused`, or `--full` to override.
+
+**Heuristic inputs:**
+- Relevant files: <N>
+- Directories touched: <N>
+- Task type: <bug_fix|simple_change|feature|refactor|architectural>
+- Conventions exist: <yes|no>
 
 ## Working Directory
 
@@ -324,12 +382,23 @@ Task: <task_description>
 - Patterns: <N found>
 - Relevant files: <N identified>
 
+### Recommended Research Tier
+**<micro|focused|full>** - <reason>
+
+| Tier | Estimated Tokens | When to Use |
+|------|------------------|-------------|
+| micro | ~5-10K | Bug fixes, <3 files, clear scope |
+| focused | ~15-25K | Single component, 3-10 files |
+| full | ~40-60K | Multi-component, architectural |
+
+*Override with: `/rpiv_research --micro`, `--focused`, or `--full`*
+
 ### User Clarifications
 - <clarification 1>
 - <clarification 2>
 *(or "None gathered" if --minimal or no questions asked)*
 
-Next: <suggested command with reasoning>
+Next: /rpiv_research (will use <recommended_tier> tier)
 ```
 
 ## Important Notes

@@ -55,13 +55,22 @@ Discussion artifacts add: `topic: scope|approach|design|review|retrospective`
 
 | Phase | Command | Artifacts | Key Rules |
 |-------|---------|-----------|-----------|
-| Start | `/rpiv_start` | `00_context.md`, `index.md` | Scans vault + codebase, asks clarifications. `--minimal` skips scan |
+| Start | `/rpiv_start` | `00_context.md`, `index.md` | Scans vault + codebase, recommends research tier. `--minimal` skips scan |
 | Discuss | `/rpiv_discuss` | `DXX_<topic>.md` | Optional. Record decisions (WHY not what). 300-500 lines max |
-| Research | `/rpiv_research` | `1X_research.md` | Uses distiller agents. Auto-suggests discuss if open questions |
+| Research | `/rpiv_research` | `1X_research.md` | Tiered: `--micro` (5-10K), `--focused` (15-25K), `--full` (40-60K). Auto-detects from start |
 | Plan | `/rpiv_plan` | `2X_plan.md` | Requires research (or `--no-research`). MUST include manual test plan |
 | Implement | `/rpiv_implement` | `3X_implementation.md` | Requires plan artifact |
 | Validate | `/rpiv_validate` | `4X_validation.md` | Two-pass system (see below). `--fast` skips Pass 2 |
 | Summarize | `/session_summary` | `50_session_summary.md` | Verification playbook, future work, limitations |
+
+### Tiered Research
+| Tier | Tokens | When | Agents |
+|------|--------|------|--------|
+| `--micro` | 5-10K | Bug fix, ≤3 files, clear scope | None (synthesis only) |
+| `--focused` | 15-25K | Single component, 3-10 files | codebase-analyzer only |
+| `--full` | 40-60K | Multi-component, architectural | All distillers |
+
+Auto-detected from `/rpiv_start` context. Override with explicit flag.
 
 ### Two-Pass Validation
 - **Pass 1** (always): `/tooling check`, `/tooling test`, code-reviewer. Collects ALL issues.
