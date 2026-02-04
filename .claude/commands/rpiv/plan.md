@@ -5,7 +5,7 @@ model: opus
 
 # RPIV Plan Phase
 
-Create an implementation plan based on research findings. **Requires research artifact unless `--no-research` flag provided.**
+Create implementation plan based on research. Analyze context thoroughly, ask clarifying questions where needed, then produce actionable plan.
 
 ## Usage
 
@@ -18,7 +18,7 @@ Create an implementation plan based on research findings. **Requires research ar
 ## Prerequisites
 
 - Active RPIV session with `00_context.md`
-- **Research artifact `1X_research.md` REQUIRED** (latest version, unless `--no-research`)
+- **Research artifact `1X_research.md` REQUIRED** (unless `--no-research`)
 
 ## Enforcement
 
@@ -49,50 +49,68 @@ IF $LATEST_RESEARCH is empty AND --no-research NOT provided:
 
 ## Process
 
-### Step 1: Load Session Context
+### Step 1: Load Context
 
 1. **Find active session** from `$VAULT_BASE/<repo_name>/sessions/`
 2. **Read 00_context.md** for task description
-3. **Find and read latest research** (unless `--no-research`):
+3. **Read latest research** (unless `--no-research`):
    ```bash
    LATEST_RESEARCH=$(ls -1 $SESSION_PATH/1?_research.md 2>/dev/null | sort -V | tail -1)
-   # Read $LATEST_RESEARCH for research findings
    ```
+4. **Read knowledge artifacts** from `$VAULT_BASE/<repo_name>/knowledge/`
 
-### Step 2: Load Knowledge Artifacts
+### Step 2: Analyze & Identify Gaps
 
-Read from `$VAULT_BASE/<repo_name>/knowledge/`:
-- `conventions/main.md` - coding standards
-- `patterns/` - relevant patterns
-- `microservices/` or `services/` - component docs
+Thoroughly analyze the task considering:
 
-### Step 3: Design Implementation
+**Main flow:**
+- What's the happy path?
+- What are the core requirements?
 
-Based on research and conventions:
+**Edge cases:**
+- What happens with empty/null inputs?
+- Concurrent access scenarios?
+- Error states and recovery?
 
-1. **Break task into phases**:
-   - Each phase independently testable
-   - Order by dependencies
-   - Max 2-3 files per phase
+**Tricky parts:**
+- Integration points with existing code
+- Potential breaking changes
+- Performance implications
+- Security considerations
 
-2. **For each phase**:
-   - Define clear goal
-   - List files to modify (with line numbers if known)
-   - Reference patterns to follow
-   - Define validation criteria
+**Ambiguities:**
+- Unclear requirements from task description
+- Multiple valid approaches
+- Missing information needed for implementation
 
-3. **Identify risks**:
-   - Breaking changes
-   - Performance implications
-   - Security considerations
+### Step 3: Ask Clarifying Questions
 
-4. **Define manual testing steps** (MANDATORY):
-   - Specific curl commands for each endpoint/feature
-   - Expected responses with actual values (not placeholders)
-   - Observable side effects (logs, DB, cache)
-   - Negative test cases
+If gaps or ambiguities identified, ask clarifying questions using `AskUserQuestion`.
 
-### Step 4: Determine Next Artifact Version
+Focus on questions that:
+- Would significantly change the implementation approach
+- Resolve ambiguities that can't be inferred from context
+- Clarify scope boundaries
+
+Do NOT ask about:
+- Details that can be reasonably inferred
+- Implementation minutiae
+- Things already answered in research
+
+### Step 4: Design Implementation
+
+Based on context and clarifications:
+
+1. **Break task into phases** - each independently testable
+2. **For each phase** - define goal, files, patterns, validation
+3. **Identify risks** - from edge cases and tricky parts analysis
+4. **Define manual testing** - specific, actionable verification steps
+
+---
+
+### Step 2: Write Plan Artifact
+
+### Step 2.1: Determine Next Artifact Version
 
 ```bash
 # Find existing plan artifacts and get next version
@@ -106,7 +124,7 @@ else
 fi
 ```
 
-### Step 5: Write Plan Artifact
+### Step 2.2: Write Plan Artifact
 
 Use `obsidian` MCP to write `$NEXT_VERSION`:
 
@@ -302,7 +320,7 @@ From `knowledge/conventions/main.md`:
 - Conventions: `$VAULT_BASE/<repo>/knowledge/conventions/main.md`
 ```
 
-### Step 6: Update Session Index
+### Step 3: Update Session Index
 
 **CRITICAL: The index MUST track ALL artifacts. Follow this logic precisely:**
 
@@ -367,7 +385,7 @@ ELSE (iteration - 21, 22, 23...):
 | 2026-01-13T14:00:00Z | Plan iteration created (21_plan.md) - fixes for validation issues |  <-- ADD THIS
 ```
 
-### Step 7: Report
+### Step 4: Report
 
 ```
 ## RPIV Plan Complete
@@ -392,8 +410,9 @@ Next: /rpiv_implement
 
 ## Important Notes
 
-- **Plan MUST reference research findings**
-- **Plan MUST apply conventions from knowledge/**
+- Analyze context thoroughly before planning
+- Ask clarifying questions for significant ambiguities
+- Consider edge cases and tricky parts, not just happy path
 - Each phase should be completable in one focused session
 - Validation criteria must be specific and testable
 
