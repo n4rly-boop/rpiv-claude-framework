@@ -5,7 +5,7 @@ model: opus
 
 # RPIV Validate Phase
 
-Run two-pass validation pipeline on implementation.
+Run two-pass validation pipeline on implementation with **smart scoping** to reduce token usage.
 
 ## Two-Pass System
 
@@ -16,20 +16,30 @@ Run two-pass validation pipeline on implementation.
 - **Fail-all-at-once**: Collects ALL issues, doesn't stop early
 - **Duration**: ~5 minutes
 
-### Pass 2: Deep Multi-Agent Analysis (Auto-triggers on Critical Issues)
-- Runs 4 specialist agents **in parallel**:
-  - `defensive-reviewer` - Edge cases, null safety, error handling
-  - `integration-reviewer` - API contracts, breaking changes, dependencies
-  - `security-reviewer` - Injection, auth bypasses, data leaks
-  - `logic-reviewer` - Requirements fulfillment vs `$LATEST_PLAN`
+### Pass 2: Deep Multi-Agent Analysis (Scoped & Conditional)
+- **Change-Type Gating**: Selects relevant agents based on what changed
+- **Differential Targeting**: Only reviews files with Pass 1 issues
 - **Trigger**: Only if Pass 1 finds **CRITICAL** issues
-- **Duration**: ~15-20 minutes
+- **Duration**: ~5-15 minutes (reduced from 15-20 via scoping)
+
+## Pass 2 Agent Selection (Change-Type Gating)
+
+| Change Type | Agents Run | Agents Skipped | Tokens |
+|-------------|------------|----------------|--------|
+| Docs/config only | None | All 4 | ~0 |
+| Single file fix | defensive + logic | integration, security | ~30K |
+| API/schema change | integration + security | defensive, logic | ~30K |
+| Auth/security code | security + defensive | integration, logic | ~30K |
+| Multi-file feature | All 4 (scoped to issue files) | - | ~40-60K |
+
+**Default (no pattern match)**: Run all 4 agents, but only on files with Pass 1 issues.
 
 ## Usage
 
 ```
-/rpiv_validate                          # Two-pass (default): Pass 1, then Pass 2 if critical issues
+/rpiv_validate                          # Two-pass with smart scoping (default)
 /rpiv_validate --fast                   # Pass 1 only (skip Pass 2 even if issues found)
+/rpiv_validate --full                   # Force all 4 Pass 2 agents on all changed files
 /rpiv_validate --session <session_id>   # Specify session
 ```
 
@@ -42,6 +52,14 @@ Run only Pass 1 (surface scan), skip Pass 2 even if critical issues found.
 - You want quick feedback
 - You'll manually review issues
 - You're iterating rapidly
+
+### `--full`
+Force full Pass 2 (all 4 agents on all changed files), bypassing smart scoping.
+
+**Use when:**
+- Major refactor or architectural change
+- You want comprehensive review regardless of change type
+- Final validation before important release
 
 ### `--session <session_id>`
 Specify which session to validate (default: most recent)
@@ -60,13 +78,48 @@ Specify which session to validate (default: most recent)
    ```
 3. **Check for --fast flag**
 
-### Step 2: Discover Changed Files
+### Step 2: Discover Changed Files & Detect Change Type
 
 ```bash
 # From implementation artifact or git
 git diff --name-only HEAD~N..HEAD  # Where N = implementation commits
 git status --porcelain              # Uncommitted changes
 ```
+
+#### 2.1: Classify Change Type
+
+Analyze changed files to determine validation scope:
+
+```
+changed_files = list of all changed files
+file_extensions = unique extensions from changed_files
+directories = unique parent directories
+
+# Classification rules (in priority order)
+IF all files match (*.md, *.txt, *.rst, *.json, *.yaml, *.yml, *.toml, *.ini, *.cfg):
+    change_type = "docs_config"
+    pass2_agents = []  # Skip Pass 2 entirely
+
+ELSE IF any file matches (**/auth/**, **/security/**, **/login/**, **/session/**,
+                          **password**, **token**, **credential**, **secret**):
+    change_type = "security_sensitive"
+    pass2_agents = ["security-reviewer", "defensive-reviewer"]
+
+ELSE IF any file matches (**/api/**, **/routes/**, **/endpoints/**, **/schema/**,
+                          **openapi**, **swagger**, **/models/**):
+    change_type = "api_schema"
+    pass2_agents = ["integration-reviewer", "security-reviewer"]
+
+ELSE IF len(changed_files) <= 3 AND len(directories) == 1:
+    change_type = "localized_fix"
+    pass2_agents = ["defensive-reviewer", "logic-reviewer"]
+
+ELSE:
+    change_type = "multi_file_feature"
+    pass2_agents = ["defensive-reviewer", "integration-reviewer", "security-reviewer", "logic-reviewer"]
+```
+
+**Store change_type and pass2_agents for later use.**
 
 ### Step 3: PASS 1 - Fast Surface Scan
 
@@ -98,46 +151,105 @@ Task(
 )
 ```
 
-#### 3.3: Analyze Pass 1 Results
+#### 3.3: Analyze Pass 1 Results & Collect Issue Files
 
 Count issues by severity:
 - Parse `/tooling check` output for errors
 - Parse `/tooling test` output for failures
 - Parse code-reviewer output for Critical/Warning/Suggestion
 
+**Collect files with issues (for differential Pass 2):**
+```
+files_with_issues = []
+
+# From /tooling check - extract file paths from error messages
+for error in tooling_check_errors:
+    file_path = extract_file_path(error)
+    if file_path:
+        files_with_issues.append(file_path)
+
+# From /tooling test - extract file paths from test failures
+for failure in test_failures:
+    file_path = extract_file_path(failure)
+    if file_path:
+        files_with_issues.append(file_path)
+
+# From code-reviewer - extract file:line references
+for issue in code_reviewer_issues:
+    if issue.severity in ["CRITICAL", "WARNING"]:
+        files_with_issues.append(issue.file_path)
+
+files_with_issues = unique(files_with_issues)
+```
+
 **Determine if Pass 2 needed:**
 ```
-IF any CRITICAL issues found:
+IF change_type == "docs_config":
+    SKIP Pass 2 entirely (no code changes)
+
+ELSE IF any CRITICAL issues found:
     IF --fast flag:
         SKIP Pass 2, write report
+    ELSE IF --full flag:
+        TRIGGER Pass 2 with ALL agents on ALL changed files
     ELSE:
-        TRIGGER Pass 2
+        TRIGGER Pass 2 with SELECTED agents on FILES_WITH_ISSUES only
 ELSE:
     SKIP Pass 2, write report (all good)
 ```
 
-### Step 4: PASS 2 - Deep Multi-Agent Analysis
+### Step 4: PASS 2 - Deep Multi-Agent Analysis (Scoped)
 
 **Only runs if:**
 1. Pass 1 found CRITICAL issues, AND
-2. `--fast` flag NOT provided
+2. `--fast` flag NOT provided, AND
+3. change_type != "docs_config"
 
-#### 4.1: Launch Specialist Agents in Parallel
+#### 4.1: Determine Scope
 
-**Run all 4 agents simultaneously using single message with multiple Task calls:**
+```
+IF --full flag:
+    # Override: run all agents on all changed files
+    agents_to_run = ["defensive-reviewer", "integration-reviewer", "security-reviewer", "logic-reviewer"]
+    files_to_review = all_changed_files
+ELSE:
+    # Smart scoping: selected agents on issue files only
+    agents_to_run = pass2_agents  # From Step 2.1 change-type detection
+    files_to_review = files_with_issues  # From Step 3.3
+
+# Log scoping decision
+INFORM user: "Pass 2 Scope: <N> agents on <M> files (saved ~<X>K tokens vs full)"
+```
+
+#### 4.2: Launch Selected Agents in Parallel
+
+**Run only selected agents simultaneously:**
 
 ```bash
-# Launch all agents in parallel
-Task(subagent_type: "defensive-reviewer", prompt: "Review for edge cases...", ...)
-Task(subagent_type: "integration-reviewer", prompt: "Review for breaking changes...", ...)
-Task(subagent_type: "security-reviewer", prompt: "Review for vulnerabilities...", ...)
-Task(subagent_type: "logic-reviewer", prompt: "Validate against $LATEST_PLAN...", ...)
+# Launch ONLY the agents determined by change-type gating
+# Pass ONLY files_to_review (differential targeting)
+
+IF "defensive-reviewer" in agents_to_run:
+    Task(subagent_type: "defensive-reviewer",
+         prompt: "Review these files for edge cases: <files_to_review>", ...)
+
+IF "integration-reviewer" in agents_to_run:
+    Task(subagent_type: "integration-reviewer",
+         prompt: "Review these files for breaking changes: <files_to_review>", ...)
+
+IF "security-reviewer" in agents_to_run:
+    Task(subagent_type: "security-reviewer",
+         prompt: "Review these files for vulnerabilities: <files_to_review>", ...)
+
+IF "logic-reviewer" in agents_to_run:
+    Task(subagent_type: "logic-reviewer",
+         prompt: "Validate these files against $LATEST_PLAN: <files_to_review>", ...)
 ```
 
 **Pass to each agent:**
-- List of changed files
+- `files_to_review` (NOT all changed files - differential targeting)
 - Path to `$LATEST_PLAN` (for logic-reviewer)
-- Pass 1 results summary
+- Pass 1 results summary for context
 
 #### 4.2: Collect Pass 2 Results
 
@@ -180,8 +292,12 @@ session: <session_id>
 type: validation
 created: <iso8601>
 updated: <iso8601>
-validation_mode: two_pass | fast_only
+validation_mode: two_pass | fast_only | full
+change_type: <docs_config|security_sensitive|api_schema|localized_fix|multi_file_feature>
 pass_2_triggered: true | false
+pass_2_agents: [<list of agents run>]
+pass_2_files: [<list of files reviewed>]
+tokens_saved: <estimate>
 sources:
   - $LATEST_IMPL
   - $LATEST_PLAN
@@ -193,7 +309,9 @@ sources:
 ## Validation Mode
 
 - **Pass 1**: Completed
-- **Pass 2**: <Triggered | Skipped (no critical issues) | Skipped (--fast flag)>
+- **Pass 2**: <Triggered (scoped) | Triggered (full) | Skipped (no critical issues) | Skipped (docs only) | Skipped (--fast flag)>
+- **Change Type**: <change_type> → <agents selected>
+- **Scope**: <N> agents on <M> files (vs 4 agents on <total> files)
 
 ## Summary
 
@@ -455,6 +573,11 @@ ELSE (iteration - 41, 42, 43...):
 Created/Updated:
 - $VAULT_BASE/<repo_name>/sessions/<session_id>/$NEXT_VERSION
 
+### Change Analysis
+- **Change Type**: <change_type>
+- **Files Changed**: <N total>
+- **Files with Issues**: <M> (targeted for Pass 2)
+
 ### Pass 1 Results (Fast Surface Scan)
 - /tooling check: <PASS/FAIL/SKIP>
 - /tooling test: <PASS/FAIL/SKIP> (<N>/<total>)
@@ -463,20 +586,26 @@ Created/Updated:
 Pass 1 Issues: Critical: <N> | Warnings: <N> | Suggestions: <N>
 
 ### Pass 2 Status
-<IF Pass 2 ran:>
-**Pass 2 Triggered**: Found <N> critical issues in Pass 1
+<IF Pass 2 ran (scoped):>
+**Pass 2 Triggered (Scoped)**: <change_type> → <N> agents on <M> files
 
-Deep Analysis Results:
-- defensive-reviewer: Critical: <N> | Warnings: <N>
-- integration-reviewer: Critical: <N> | Warnings: <N>
-- security-reviewer: Critical: <N> | Warnings: <N>
-- logic-reviewer: Critical: <N> | Warnings: <N>
+Agents Run:
+- <agent_name>: Critical: <N> | Warnings: <N>
+- <agent_name>: Critical: <N> | Warnings: <N>
 
-Pass 2 Issues: Critical: <N> | Warnings: <N> | Suggestions: <N>
+Agents Skipped: <list or "none">
+Token Savings: ~<X>K vs full Pass 2
 
-<IF Pass 2 skipped:>
+<IF Pass 2 ran (full - via --full flag):>
+**Pass 2 Triggered (Full)**: All 4 agents on all <N> changed files
+
+<IF Pass 2 skipped (docs_config):>
+**Pass 2 Skipped**: Docs/config only changes - no code to deep-review ✓
+
+<IF Pass 2 skipped (no critical):>
 **Pass 2 Skipped**: No critical issues found in Pass 1 ✓
-<OR if --fast:>
+
+<IF Pass 2 skipped (--fast):>
 **Pass 2 Skipped**: --fast flag used
 
 ---
@@ -499,14 +628,23 @@ Next Steps:
 - **MUST FIX <N> critical issues before merge**
 - Review $NEXT_VERSION for details
 - Fix issues and re-run /rpiv_validate
+
+*(Use --full flag to force comprehensive review if needed)*
 ```
 
 ## Important Notes
 
 - **Two-Pass System** - Pass 1 always runs, Pass 2 auto-triggers on critical issues
   - Pass 1: Fast (5 min) - surface scan
-  - Pass 2: Deep (15-20 min) - multi-agent analysis
+  - Pass 2: Deep (5-15 min) - multi-agent analysis with smart scoping
   - Use `--fast` to skip Pass 2 for quick iterations
+  - Use `--full` to force comprehensive Pass 2 (all agents, all files)
+
+- **Smart Scoping (NEW)** - Pass 2 is now scoped to save tokens
+  - **Change-Type Gating**: Selects relevant agents based on what changed
+  - **Differential Targeting**: Only reviews files with Pass 1 issues
+  - Token savings: 30-60% vs full Pass 2 for most changes
+  - Override with `--full` flag when comprehensive review needed
 
 - **Fail-All-At-Once** - Never exits early, collects ALL issues
   - `/tooling check` runs even if `/tooling test` would fail
@@ -522,14 +660,16 @@ Next Steps:
   - Critical from /tooling check/test failures
   - Critical from code-reviewer agent
   - Warnings alone don't trigger Pass 2
+  - Docs/config-only changes skip Pass 2 entirely
 
-- **Agent Focus** - All agents review changed files only
-  - Agents don't review unchanged code
+- **Agent Focus** - Agents review scoped files only
+  - Default: Only files with Pass 1 issues (differential)
+  - With `--full`: All changed files
   - Success criteria from plan are verified (logic-reviewer)
 
 - **Parallel Execution** - Pass 2 agents run simultaneously
-  - All 4 specialist agents launch at once
-  - Faster than sequential (4x speedup)
+  - Selected agents launch at once (2-4 depending on change type)
+  - Faster than sequential
 
 ## Error Handling
 

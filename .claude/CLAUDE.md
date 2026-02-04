@@ -72,9 +72,19 @@ Discussion artifacts add: `topic: scope|approach|design|review|retrospective`
 
 Auto-detected from `/rpiv_start` context. Override with explicit flag.
 
-### Two-Pass Validation
+### Two-Pass Validation (Scoped)
 - **Pass 1** (always): `/tooling check`, `/tooling test`, code-reviewer. Collects ALL issues.
-- **Pass 2** (on critical issues): 4 parallel agents - defensive, integration, security, logic reviewers
+- **Pass 2** (scoped, on critical issues): Selected agents on files with issues only.
+
+| Change Type | Pass 2 Agents | Tokens |
+|-------------|---------------|--------|
+| Docs/config only | None (skip) | 0 |
+| Localized fix (≤3 files) | defensive + logic | ~30K |
+| API/schema change | integration + security | ~30K |
+| Security-sensitive | security + defensive | ~30K |
+| Multi-file feature | All 4 (on issue files) | ~40-60K |
+
+Use `--full` to force all 4 agents on all files. Use `--fast` to skip Pass 2.
 
 ## Black Box Rule (Monorepo)
 
