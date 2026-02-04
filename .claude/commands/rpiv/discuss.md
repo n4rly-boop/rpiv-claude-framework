@@ -5,7 +5,7 @@ model: opus
 
 # RPIV Discussion Phase
 
-Facilitate structured discussion with user and record decisions to vault. Produces a **decision summary** (not a transcript) that preserves reasoning for future reference.
+Facilitate structured discussion and record decisions to vault. Produces a **decision summary** that preserves reasoning for future reference.
 
 ## Usage
 
@@ -15,14 +15,6 @@ Facilitate structured discussion with user and record decisions to vault. Produc
 /rpiv_discuss --after research          # Discuss after specific phase
 /rpiv_discuss --after validation        # Discuss validation results
 ```
-
-## When to Use
-
-- **After research**: Weigh approaches before planning
-- **After plan**: Review design decisions before implementing
-- **After validation failure**: Discuss what went wrong and how to fix
-- **Any time**: When significant decisions need to be recorded
-
 ## Process
 
 ### Step 1: Load Session Context
@@ -267,7 +259,7 @@ Next: <suggested next command based on context>
 - Focus on capturing the **WHY** behind decisions
 - Keep artifacts concise (300-500 lines max)
 - Always link back to preceding artifacts
-- Record trade-offs explicitly - these are valuable for future reference
+- Record trade-offs explicitly - valuable for future reference
 
 ## Error Handling
 
