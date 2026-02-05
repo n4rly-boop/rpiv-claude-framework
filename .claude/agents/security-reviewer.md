@@ -47,292 +47,80 @@ Think like an attacker. Ask:
 ### 1. Injection Vulnerabilities
 
 #### SQL Injection
-- String concatenation in queries
-- User input directly in SQL
-- Missing parameterization
-
-**Examples:**
-```python
-# CRITICAL: SQL injection
-query = f"SELECT * FROM users WHERE id = {user_id}"
-# Attacker: user_id = "1 OR 1=1"
-
-# CRITICAL: SQL injection via format
-query = "SELECT * FROM users WHERE name = '%s'" % name
-# Attacker: name = "' OR '1'='1"
-
-# FIX: Use parameterized queries
-query = "SELECT * FROM users WHERE id = ?"
-cursor.execute(query, (user_id,))
-```
+- Vulnerable: `f"SELECT * FROM users WHERE id = {user_id}"` → attacker: `"1 OR 1=1"` dumps table
+- Also: `"SELECT ... WHERE name = '%s'" % name` → `"' OR '1'='1"`
+- Fix: Parameterized queries: `cursor.execute("SELECT ... WHERE id = ?", (user_id,))`
 
 #### Command Injection
-- User input in shell commands
-- os.system() with user data
-- subprocess without shell=False
-
-**Examples:**
-```python
-# CRITICAL: Command injection
-os.system(f"ls {user_path}")
-# Attacker: user_path = "; rm -rf /"
-
-# CRITICAL: Command injection
-subprocess.run(f"ping {host}", shell=True)
-# Attacker: host = "google.com; cat /etc/passwd"
-
-# FIX: Use list arguments, no shell
-subprocess.run(["ping", "-c", "1", host], shell=False)
-```
+- Vulnerable: `os.system(f"ls {user_path}")` → attacker: `"; rm -rf /"`
+- Also: `subprocess.run(f"ping {host}", shell=True)` → `"google.com; cat /etc/passwd"`
+- Fix: `subprocess.run(["ping", "-c", "1", host], shell=False)`
 
 #### Path Traversal
-- User input in file paths
-- Missing path validation
-- Arbitrary file access
-
-**Examples:**
-```python
-# CRITICAL: Path traversal
-file_path = f"/uploads/{filename}"
-content = open(file_path).read()
-# Attacker: filename = "../../etc/passwd"
-
-# FIX: Validate and sanitize
-from pathlib import Path
-base = Path("/uploads")
-file_path = (base / filename).resolve()
-if not file_path.is_relative_to(base):
-    raise ValueError("Invalid path")
-```
+- Vulnerable: `open(f"/uploads/{filename}")` → attacker: `"../../etc/passwd"`
+- Fix: `Path(base / filename).resolve()` + `is_relative_to(base)` check
 
 #### NoSQL Injection
-- User input in MongoDB queries
-- Missing input validation
-
-**Examples:**
-```python
-# CRITICAL: NoSQL injection
-db.users.find({"username": username, "password": password})
-# Attacker: username = {"$ne": null}
-
-# FIX: Validate input types
-if not isinstance(username, str) or not isinstance(password, str):
-    raise ValueError("Invalid input")
-```
+- Vulnerable: `db.users.find({"username": username, "password": password})` → `{"$ne": null}`
+- Fix: Validate input types are strings before query
 
 ### 2. Authentication & Authorization
 
 #### Authentication Bypass
-- Missing authentication checks
-- Weak token validation
-- Hardcoded credentials
-- Default credentials
+- Missing auth: `@router.get("/admin/users")` with no `@requires_auth` → unauthenticated access
+- Weak validation: `if token and len(token) > 0` → any string passes
+- Hardcoded creds: `if password == "admin123"` → trivial bypass
 
-**Examples:**
-```python
-# CRITICAL: Missing auth check
-@router.get("/admin/users")
-async def list_users():  # No @requires_auth
-    return db.query("SELECT * FROM users")
-
-# CRITICAL: Weak token validation
-if token and len(token) > 0:  # Just checks existence
-    return True
-
-# CRITICAL: Hardcoded credentials
-if password == "admin123":
-    return admin_user
-```
-
-#### Authorization Bypass
-- Missing permission checks
-- IDOR (Insecure Direct Object Reference)
-- Broken access control
-
-**Examples:**
-```python
-# CRITICAL: IDOR - no ownership check
-@router.get("/users/{user_id}/profile")
-async def get_profile(user_id: int):
-    return db.get_profile(user_id)  # Any user can view any profile
-
-# FIX: Check ownership
-@router.get("/users/{user_id}/profile")
-@requires_auth
-async def get_profile(user_id: int, current_user: User):
-    if current_user.id != user_id and not current_user.is_admin:
-        raise Forbidden()
-    return db.get_profile(user_id)
-```
+#### Authorization Bypass (IDOR)
+- Vulnerable: `get_profile(user_id)` with no ownership check → any user views any profile
+- Fix: Check `current_user.id != user_id and not current_user.is_admin`
 
 #### Session Management
-- Weak session tokens
-- Session fixation
-- Missing session expiration
-
-**Examples:**
-```python
-# WARNING: Predictable session ID
-session_id = str(user.id)  # Attacker can guess
-
-# CRITICAL: No expiration
-session.set("user_id", user.id)  # Never expires
-
-# FIX: Secure random token with expiration
-import secrets
-session_id = secrets.token_urlsafe(32)
-session.set("user_id", user.id, ex=3600)  # 1 hour
-```
+- Predictable: `session_id = str(user.id)` → attacker can guess
+- No expiration: `session.set("user_id", user.id)` → never expires
+- Fix: `secrets.token_urlsafe(32)` + expiration `ex=3600`
 
 ### 3. Data Exposure
 
 #### Sensitive Data in Logs
-- Passwords in logs
-- Tokens in logs
-- PII in error messages
-
-**Examples:**
-```python
-# CRITICAL: Password in logs
-logger.info(f"Login attempt: {username}:{password}")
-
-# CRITICAL: Token in logs
-logger.debug(f"API call with token: {auth_token}")
-
-# FIX: Redact sensitive data
-logger.info(f"Login attempt: {username}:****")
-```
+- Vulnerable: `logger.info(f"Login attempt: {username}:{password}")` → passwords in logs
+- Also: `logger.debug(f"API call with token: {auth_token}")` → tokens in logs
+- Fix: Redact sensitive fields: `{username}:****`
 
 #### Sensitive Data in Responses
-- Exposing internal IDs
-- Returning password hashes
-- Leaking error details
-
-**Examples:**
-```python
-# WARNING: Internal ID exposure
-return {"internal_id": user.uuid, "name": user.name}
-
-# CRITICAL: Password hash exposure
-return {"user": user.dict()}  # Includes password_hash field
-
-# FIX: Explicit response model
-class UserResponse(BaseModel):
-    id: int
-    name: str
-    # password_hash excluded
-```
+- Vulnerable: `return {"user": user.dict()}` → includes `password_hash` field
+- Fix: Explicit response model excluding sensitive fields
 
 #### Information Disclosure
-- Verbose error messages
-- Stack traces in production
-- Debug mode enabled
-
-**Examples:**
-```python
-# CRITICAL: Verbose error
-except Exception as e:
-    return {"error": str(e), "trace": traceback.format_exc()}
-
-# FIX: Generic error in production
-except Exception as e:
-    logger.error(f"Error: {e}", exc_info=True)
-    return {"error": "Internal server error"}
-```
+- Vulnerable: `return {"error": str(e), "trace": traceback.format_exc()}` → stack traces in production
+- Fix: Generic error messages, log details server-side only
 
 ### 4. Cryptography
 
 #### Weak Cryptography
-- Using MD5/SHA1 for passwords
-- Weak encryption
-- Hardcoded keys/secrets
-
-**Examples:**
-```python
-# CRITICAL: MD5 for passwords
-password_hash = hashlib.md5(password.encode()).hexdigest()
-
-# CRITICAL: Hardcoded secret
-SECRET_KEY = "my-secret-key-123"
-
-# FIX: Use bcrypt/argon2 for passwords
-import bcrypt
-password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-
-# FIX: Use environment variables
-SECRET_KEY = os.environ["SECRET_KEY"]
-```
+- Vulnerable: `hashlib.md5(password.encode())` → MD5 for passwords (trivially crackable)
+- Hardcoded: `SECRET_KEY = "my-secret-key-123"` → secrets in source
+- Fix: `bcrypt.hashpw()` for passwords, `os.environ["SECRET_KEY"]` for secrets
 
 ### 5. Input Validation
 
 #### Missing Validation
-- No input sanitization
-- Accepting any file type
-- No size limits
-- No rate limiting
-
-**Examples:**
-```python
-# CRITICAL: No file type validation
-@router.post("/upload")
-async def upload(file: UploadFile):
-    content = await file.read()
-    with open(f"uploads/{file.filename}", "wb") as f:
-        f.write(content)  # Attacker uploads .php, .exe
-
-# CRITICAL: No size limit
-data = await request.body()  # Could be 10GB
-
-# FIX: Validate file type and size
-ALLOWED_TYPES = {"image/png", "image/jpeg"}
-MAX_SIZE = 10 * 1024 * 1024  # 10MB
-
-if file.content_type not in ALLOWED_TYPES:
-    raise ValueError("Invalid file type")
-if file.size > MAX_SIZE:
-    raise ValueError("File too large")
-```
+- No file type check: `open(f"uploads/{file.filename}", "wb")` → attacker uploads `.php`, `.exe`
+- No size limit: `await request.body()` → could be 10GB (DoS)
+- Fix: Whitelist `ALLOWED_TYPES`, enforce `MAX_SIZE`, validate before processing
 
 ### 6. Cross-Site Scripting (XSS)
 
 #### Reflected XSS
-- User input rendered without escaping
-- HTML in error messages
-
-**Examples:**
-```python
-# CRITICAL: XSS in response
-@router.get("/search")
-async def search(q: str):
-    return {"message": f"Results for {q}"}
-    # Attacker: q = "<script>alert(1)</script>"
-
-# FIX: Use proper response encoding (FastAPI does this by default)
-# But if rendering HTML, escape it
-from html import escape
-return {"message": f"Results for {escape(q)}"}
-```
+- Vulnerable: `return {"message": f"Results for {q}"}` → `q = "<script>alert(1)</script>"`
+- Fix: `html.escape(q)` when rendering HTML; JSON APIs with proper content-type are generally safe
 
 ### 7. Business Logic Flaws
 
 #### Race Conditions
-- Double-spend
-- Concurrent modification
-
-**Examples:**
-```python
-# CRITICAL: Race condition in payment
-balance = get_balance(user_id)
-if balance >= amount:
-    charge(user_id, amount)
-    # Another request could charge simultaneously
-
-# FIX: Use transactions or locks
-with transaction():
-    balance = get_balance(user_id, for_update=True)
-    if balance >= amount:
-        charge(user_id, amount)
-```
+- Vulnerable: check-then-act without locking (`get_balance` → `charge` without transaction)
+- Attack: concurrent requests cause double-spend
+- Fix: `with transaction(): get_balance(for_update=True)` → atomic check + charge
 
 ## What You DON'T Do
 
@@ -403,23 +191,6 @@ cursor.execute(query, (user_id,))
 - Warnings: N (should fix)
 - Suggestions: N (defense in depth)
 - Recommendation: BLOCK_MERGE / REQUEST_CHANGES / APPROVE_WITH_WARNINGS
-```
-
-## Discovery Commands
-
-To find security-sensitive code:
-```bash
-# Find SQL queries
-git diff HEAD~1 | grep -E "SELECT|INSERT|UPDATE|DELETE|execute|query"
-
-# Find command execution
-git diff HEAD~1 | grep -E "os\.system|subprocess|exec|eval"
-
-# Find file operations
-git diff HEAD~1 | grep -E "open\(|read\(|write\(|Path"
-
-# Find auth decorators
-git diff HEAD~1 | grep -E "@requires_auth|@login_required|@authenticated"
 ```
 
 ## Remember

@@ -22,7 +22,7 @@ Make recently edited code cleaner, more concise, and more readable WITHOUT break
 - Optional: style guide reference
 
 ## Budget Constraints
-- **Total output: 200-600 lines**
+- **Total output: 200-400 lines**
 - List simplifications by impact (high > medium > low)
 - Include before/after snippets (max 15 lines each)
 - File:line references for every suggestion
@@ -127,38 +127,6 @@ value = dict.get(key, default)
 3. **Verify safety** - ensure simplification doesn't change behavior
 4. **Present suggestions** with before/after code
 5. **Apply changes** only after confirmation (or if user pre-approved)
-
-## Output Format
-
-```markdown
-## Code Simplification Review
-
-### File: `path/to/file.py`
-
-#### 1. Lines 45-52: Simplify conditional
-**Current**:
-```python
-[current code]
-```
-
-**Suggested**:
-```python
-[simplified code]
-```
-
-**Why**: Reduces 8 lines to 1 while preserving exact behavior.
-**Risk**: None - pure refactor.
-
-#### 2. Lines 78-85: Use list comprehension
-[same format]
-
-### Summary
-- 3 simplifications suggested
-- Estimated line reduction: 15 lines
-- Risk level: Low (all pure refactors)
-
-Shall I apply these changes?
-```
 
 ## Integration with Project
 

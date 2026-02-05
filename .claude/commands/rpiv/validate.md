@@ -14,13 +14,11 @@ Run two-pass validation pipeline on implementation with **smart scoping** to red
 - `/tooling test` - unit tests
 - `code-reviewer` - general code review
 - **Fail-all-at-once**: Collects ALL issues, doesn't stop early
-- **Duration**: ~5 minutes
 
 ### Pass 2: Deep Multi-Agent Analysis (Scoped & Conditional)
 - **Change-Type Gating**: Selects relevant agents based on what changed
 - **Differential Targeting**: Only reviews files with Pass 1 issues
 - **Trigger**: Only if Pass 1 finds **CRITICAL** issues
-- **Duration**: ~5-15 minutes (reduced from 15-20 via scoping)
 
 ## Pass 2 Agent Selection (Change-Type Gating)
 
@@ -599,35 +597,42 @@ Token Savings: ~<X>K vs full Pass 2
 <IF Pass 2 ran (full - via --full flag):>
 **Pass 2 Triggered (Full)**: All 4 agents on all <N> changed files
 
-<IF Pass 2 skipped (docs_config):>
-**Pass 2 Skipped**: Docs/config only changes - no code to deep-review ✓
-
-<IF Pass 2 skipped (no critical):>
-**Pass 2 Skipped**: No critical issues found in Pass 1 ✓
-
-<IF Pass 2 skipped (--fast):>
-**Pass 2 Skipped**: --fast flag used
+<IF Pass 2 skipped:>
+**Pass 2 Skipped**: <reason: "docs/config only" | "no critical issues in Pass 1" | "--fast flag used">
 
 ---
 
 **Total Issues**: Critical: <N> | Warnings: <N> | Suggestions: <N>
 **Verdict**: <PASS/NEEDS_ATTENTION/FAIL>
 
-Next Steps:
+### Recommended Next Steps
+
+Based on validation results:
+
 <IF PASS:>
 - ✓ All checks passed
 - Run `/tooling format` if not already done
-- Ready for /commit
+- Ready for `/session_summary` then commit
 
-<IF NEEDS_ATTENTION:>
+<IF NEEDS_ATTENTION (warnings only, no critical):>
 - Fix <N> warnings (non-blocking)
-- Review suggestions
-- Consider fixing before merge
+- Review suggestions, consider fixing before merge
 
-<IF FAIL:>
-- **MUST FIX <N> critical issues before merge**
-- Review $NEXT_VERSION for details
-- Fix issues and re-run /rpiv_validate
+<IF FAIL - code-level issues (lint, test, formatting):>
+- Fix code directly, then `/rpiv_validate` again
+- Or use `/rpiv_implement --fix` for guided fixes from validation issues
+
+<IF FAIL - logic/requirements mismatch (logic-reviewer issues):>
+- Create new plan iteration: `/rpiv_plan` (produces next 2X_plan.md)
+- Then `/rpiv_implement` with updated plan
+
+<IF FAIL - architectural/design problems:>
+- Discuss: `/rpiv_discuss --topic "approach"`
+- Then re-research if needed: `/rpiv_research --focus "<problem>"`
+
+<IF FAIL - security vulnerabilities:>
+- Fix immediately, then `/rpiv_validate` again
+- Consider `/rpiv_validate --full` for comprehensive re-check
 
 *(Use --full flag to force comprehensive review if needed)*
 ```
@@ -635,8 +640,6 @@ Next Steps:
 ## Important Notes
 
 - **Two-Pass System** - Pass 1 always runs, Pass 2 auto-triggers on critical issues
-  - Pass 1: Fast (5 min) - surface scan
-  - Pass 2: Deep (5-15 min) - multi-agent analysis with smart scoping
   - Use `--fast` to skip Pass 2 for quick iterations
   - Use `--full` to force comprehensive Pass 2 (all agents, all files)
 
@@ -694,56 +697,9 @@ Tip: Run /extract_conventions to configure project tooling.
 Continuing with agent review...
 ```
 
-If Pass 1 finds critical issues:
-```
-Pass 1 Complete - Critical Issues Found
-
-Critical Issues: <N>
-- /tooling check: <N> errors
-- /tooling test: <N> failures
-- code-reviewer: <N> critical
-
-Triggering Pass 2 (Deep Multi-Agent Analysis)...
-
-[Launches 4 specialist agents in parallel]
-
-This will take ~15-20 minutes. Pass 2 will provide comprehensive analysis
-of all critical issues from multiple perspectives.
-
-Use --fast flag to skip Pass 2 for quick iterations.
-```
-
-If validation fails:
-```
-Validation FAILED
-
-Total Critical Issues: <N>
-
-Pass 1:
-- /tooling check: <N> errors
-- /tooling test: <N> failures
-- code-reviewer: <N> critical
-
-Pass 2 (triggered):
-- defensive-reviewer: <N> critical
-- integration-reviewer: <N> critical
-- security-reviewer: <N> critical
-- logic-reviewer: <N> critical
-
-Required Actions:
-1. Review $NEXT_VERSION for ALL issues (comprehensive list)
-2. Fix critical issues
-3. Run `/rpiv_validate` again
-
-Do NOT merge until validation passes.
-
-Note: All issues are listed in one place - no need for multiple validation rounds.
-```
-
 If agent timeout or failure:
 ```
 Warning: Agent <agent_name> timed out or failed
-
 Continuing with other agents...
 Validation report will note which agents completed successfully.
 ```

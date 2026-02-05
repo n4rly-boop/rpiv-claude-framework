@@ -14,16 +14,41 @@ Execute an approved implementation plan. **Requires plan artifact - will refuse 
 /rpiv_implement --session <session_id>  # Specify session
 /rpiv_implement --phase N               # Implement specific phase only
 /rpiv_implement --resume                # Resume from last incomplete phase
+/rpiv_implement --fix                   # Quick fix: bypass plan, fix validation issues
 ```
 
 ## Prerequisites
 
 - Active RPIV session with `00_context.md`
 - **Plan artifact `2X_plan.md` REQUIRED** (latest version, no override)
+- **Exception**: `--fix` flag bypasses plan requirement (requires prior validation artifact)
 
 ## Enforcement
 
-### Plan Requirement Check (CANNOT BE SKIPPED)
+### Fix Mode Check (--fix flag)
+
+```
+IF --fix flag provided:
+    # Bypass plan requirement
+    LATEST_VALID=$(ls -1 $SESSION_PATH/4?_validation.md 2>/dev/null | sort -V | tail -1)
+
+    IF $LATEST_VALID is empty:
+        REFUSE with message:
+
+        Error: --fix requires a previous validation. Run /rpiv_validate first.
+
+        The --fix flag uses validation issues as a guide for fixes.
+        No validation artifact found at: $SESSION_PATH/4?_validation.md
+
+        EXIT
+
+    ELSE:
+        INFORM: "Fix mode: using validation issues from $LATEST_VALID as guide"
+        READ $LATEST_VALID for issues to fix
+        PROCEED to Step 3 (skip plan loading)
+```
+
+### Plan Requirement Check (CANNOT BE SKIPPED unless --fix)
 
 ```
 # Find latest plan artifact
@@ -49,6 +74,8 @@ IF $LATEST_PLAN is empty:
 
     If you have a plan elsewhere, copy it to:
     $VAULT_BASE/<repo>/sessions/<session>/2X_plan.md (e.g., 20_plan.md)
+
+    Or use `/rpiv_implement --fix` to fix validation issues without a plan.
 
     EXIT
 ```
@@ -90,10 +117,11 @@ repo: <repo_name>
 scope: <root|microservice>
 session: <session_id>
 type: implementation
+fix_mode: <true if --fix, omit otherwise>
 created: <iso8601>
 updated: <iso8601>
 sources:
-  - $LATEST_PLAN
+  - $LATEST_PLAN  # or $LATEST_VALID if --fix mode
 ---
 
 # Implementation: <task_description>
@@ -135,6 +163,14 @@ Based on: [$LATEST_PLAN](./$LATEST_PLAN)
 ```
 
 ### Step 4: Execute Each Phase
+
+**If in fix mode (`--fix`):**
+- Reference validation issues from `$LATEST_VALID` instead of plan phases
+- No phases — fix each listed issue sequentially
+- Still run `/tooling check` and `/tooling test` after all fixes
+- Skip manual tests from plan (no plan in fix mode)
+
+**If in normal mode:**
 
 For each phase in the plan:
 

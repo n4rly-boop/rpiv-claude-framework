@@ -78,6 +78,17 @@ ELSE (fallback heuristics):
        tier = "full"  # safe default
    ```
 
+### Step 1.5: Check Existing File Discovery
+
+```
+IF 00_context.md "Relevant Files" section has entries:
+    relevant_files = files from context
+    SKIP codebase-locator agent in Full tier
+    INFORM: "Using <N> files from session context (skip re-discovery)"
+ELSE:
+    PROCEED with codebase-locator as normal
+```
+
 ### Step 2: Execute Research by Tier
 
 **Branch based on tier:**
@@ -134,7 +145,8 @@ Agent 1: microservice-distiller (per detected microservice)
 - Document each nested repo as black-box
 - Output to: $VAULT_BASE/<repo_name>/knowledge/microservices/<name>.md
 
-Agent 2: codebase-locator
+Agent 2: codebase-locator (if not already discovered in context)
+- SKIP if Step 1.5 found relevant files in 00_context.md
 - Find relevant files for the task
 - Return file map organized by category
 
