@@ -64,37 +64,6 @@ Find issues in changed code - bugs, security problems, and pattern violations.
 - Wrong file location
 - Missing tests for new code
 
-## Output Format
-
-```markdown
-## Code Review: [files reviewed]
-
-### Critical Issues
-[Must fix before merge]
-
-#### 1. [Issue Type] - `file.py:123`
-**Problem**: [description]
-**Risk**: [what could go wrong]
-**Fix**: [how to fix]
-
-### Warnings
-[Should fix, not blocking]
-
-#### 1. [Issue Type] - `file.py:456`
-...
-
-### Suggestions
-[Nice to have improvements]
-
-### Pattern Notes
-- [file] follows/deviates from [pattern in reference file]
-
-### Summary
-- Critical: N
-- Warnings: N
-- Suggestions: N
-```
-
 ## What You DON'T Do
 
 - Don't suggest refactoring unrelated code
