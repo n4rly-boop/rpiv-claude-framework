@@ -58,7 +58,7 @@ Discussion artifacts add: `topic: scope|approach|design|review|retrospective`
 | Start | `/rpiv_start` | `00_context.md`, `index.md` | Scans vault + codebase, recommends research tier. `--minimal` skips scan |
 | Discuss | `/rpiv_discuss` | `DXX_<topic>.md` | Optional. Record decisions (WHY not what). 300-500 lines max |
 | Research | `/rpiv_research` | `1X_research.md` | Tiered: `--micro` (5-10K), `--focused` (15-25K), `--full` (40-60K). Auto-detects from start |
-| Plan | `/rpiv_plan` | `2X_plan.md` | Requires research (or `--no-research`). Asks clarifying questions. MUST include manual test plan |
+| Plan | `/rpiv_plan` | `2X_plan.md` | Requires research (or `--no-research`). MANDATORY clarification before design. MUST include manual test plan |
 | Implement | `/rpiv_implement` | `3X_implementation.md` | Requires plan artifact (or `--fix` for validation fixes) |
 | Validate | `/rpiv_validate` | `4X_validation.md` | Two-pass system (see below). `--fast` skips Pass 2 |
 | Summarize | `/session_summary` | `50_session_summary.md` | Verification playbook, future work, limitations |
@@ -67,23 +67,23 @@ Discussion artifacts add: `topic: scope|approach|design|review|retrospective`
 Auto-detected from `/rpiv_start` context. Override with explicit flag.
 See `/rpiv_research` command for full tier definitions and agent details.
 
-| Tier | Tokens | Quick Reference |
-|------|--------|-----------------|
-| `--micro` | 5-10K | Bug fix, ≤3 files |
-| `--focused` | 15-25K | Single component |
-| `--full` | 40-60K | Multi-component |
+| Tier | Quick Reference |
+|------|-----------------|
+| `--micro` | Bug fix, ≤3 files |
+| `--focused` | Single component |
+| `--full` | Multi-component |
 
 ### Two-Pass Validation (Scoped)
 - **Pass 1** (always): `/tooling check`, `/tooling test`, code-reviewer. Collects ALL issues.
 - **Pass 2** (scoped, on critical issues): Selected agents on files with issues only.
 
-| Change Type | Pass 2 Agents | Tokens |
-|-------------|---------------|--------|
-| Docs/config only | None (skip) | 0 |
-| Localized fix (≤3 files) | defensive + logic | ~30K |
-| API/schema change | integration + security | ~30K |
-| Security-sensitive | security + defensive | ~30K |
-| Multi-file feature | All 4 (on issue files) | ~40-60K |
+| Change Type | Pass 2 Agents |
+|-------------|---------------|
+| Docs/config only | None (skip) |
+| Localized fix (≤3 files) | defensive + logic |
+| API/schema change | integration + security |
+| Security-sensitive | security + defensive |
+| Multi-file feature | All 4 (on issue files) |
 
 Use `--full` to force all 4 agents on all files. Use `--fast` to skip Pass 2.
 

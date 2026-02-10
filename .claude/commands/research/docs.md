@@ -23,37 +23,6 @@ All documentation goes to `{repo_name}/knowledge/`:
 
 Legacy path `{repo_name}/docs/` is still supported for backwards compatibility.
 
-## Important: Context Compression
-
-- **NEVER paste large outputs into chat**
-- Write all docs to vault via MCP
-- Return only paths + brief summary (max 10 lines)
-- Use distiller agents when generating comprehensive docs
-
-## Usage
-
-### Document a specific file/module
-```
-/docs src/services/auth.ts
-/docs src/api/
-```
-
-### Generate API documentation
-```
-/docs api
-/docs api src/routes/
-```
-
-### Update README
-```
-/docs readme
-```
-
-### Document a feature
-```
-/docs feature "user authentication flow"
-```
-
 ## Process
 
 ### For Code Documentation (`/docs path/to/file`)
@@ -215,13 +184,6 @@ Legacy path `{repo_name}/docs/` is still supported for backwards compatibility.
    ```
 
 3. **Save to**: `{repo_name}/docs/guides/[feature-name].md` via `obsidian` MCP
-
-## Style Guidelines
-
-1. **Match existing style**: Check `{repo_name}/docs/` in vault for tone and format
-2. **Be concise**: Developers skim documentation
-3. **Include examples**: Every feature needs a code example
-4. **Keep current**: Note what version/commit this documents
 
 ## Validation
 

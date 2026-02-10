@@ -10,12 +10,6 @@ Create a single durable summary artifact for an RPIV session that answers:
 - What changed?
 - How can the change be verified empirically (not tests/linting)?
 
-## Usage
-/session_summary
-/session_summary --session <session_id>
-/session_summary --since <git_ref>
-/session_summary --light
-
 ## Definition of "How to test"
 This command MUST produce **manual / empirical verification steps**, not CI.
 Examples:

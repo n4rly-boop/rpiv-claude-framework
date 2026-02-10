@@ -5,15 +5,7 @@ model: sonnet
 
 # RPIV Session Start
 
-Initialize a new RPIV (Research -> Plan -> Implement -> Validate) session with **enhanced context gathering**.
-
-## Usage
-
-```
-/rpiv_start [task_description]
-/rpiv_start "Add user authentication to API"
-/rpiv_start --minimal                    # Skip context scan (fast start)
-```
+Initialize a new RPIV session.
 
 ## Process
 
@@ -42,8 +34,6 @@ Initialize a new RPIV (Research -> Plan -> Implement -> Validate) session with *
 ### Step 2: Fast Context Scan (Medium Depth, ~2-3 min)
 
 **Skip this step if `--minimal` flag provided.**
-
-This step front-loads context gathering to make research more targeted.
 
 #### 2.1: Scan Vault for Related Knowledge
 
@@ -74,8 +64,6 @@ Prompt: "Find files related to: <task_description>
          Limit: top 10 most relevant files.
          Do NOT analyze content - just locate."
 ```
-
-This gives us a map of relevant files WITHOUT deep analysis (that's for research phase).
 
 #### 2.3: Collect Scan Results
 
@@ -385,11 +373,11 @@ Task: <task_description>
 ### Recommended Research Tier
 **<micro|focused|full>** - <reason>
 
-| Tier | Estimated Tokens | When to Use |
-|------|------------------|-------------|
-| micro | ~5-10K | Bug fixes, <3 files, clear scope |
-| focused | ~15-25K | Single component, 3-10 files |
-| full | ~40-60K | Multi-component, architectural |
+| Tier | When to Use |
+|------|-------------|
+| micro | Bug fixes, <3 files, clear scope |
+| focused | Single component, 3-10 files |
+| full | Multi-component, architectural |
 
 *Override with: `/rpiv_research --micro`, `--focused`, or `--full`*
 
@@ -401,25 +389,3 @@ Task: <task_description>
 Next: /rpiv_research (will use <recommended_tier> tier)
 ```
 
-## Important Notes
-
-- Session ID is used throughout the RPIV workflow
-- All subsequent RPIV commands will use this session
-- Context artifact captures the starting state for reproducibility
-- Index artifact tracks progress and links to all session artifacts
-- **Enhanced context scan takes ~2-3 minutes** - use `--minimal` to skip
-
-## Error Handling
-
-If vault path doesn't exist:
-1. Create the directory structure via MCP
-2. If MCP fails, report error and suggest checking MCP configuration
-
-If task description not provided:
-1. Ask user for task description
-2. Do not proceed until task is defined
-
-If context scan fails:
-1. Log warning but continue
-2. Note "Context scan incomplete" in 00_context.md
-3. Research phase will gather more context anyway

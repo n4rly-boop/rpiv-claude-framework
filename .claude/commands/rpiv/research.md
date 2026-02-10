@@ -7,50 +7,13 @@ model: opus
 
 Conduct research for an RPIV session using distiller agents. Produces compressed context, not raw dumps.
 
-## Usage
-
-```
-/rpiv_research                           # Auto-detect tier from context
-/rpiv_research --micro                   # Minimal: synthesize from 00_context.md only
-/rpiv_research --focused                 # Targeted: single distiller on specific paths
-/rpiv_research --full                    # Comprehensive: all distillers (default for complex)
-/rpiv_research --session <session_id>    # Specify session
-/rpiv_research --focus "authentication"  # Focus area (combines with any tier)
-```
-
 ## Research Tiers
 
-| Tier | When to Use | Agents | Tokens |
-|------|-------------|--------|--------|
-| **Micro** | Bug fix, clear scope, <3 files | None (synthesis only) | ~5-10K |
-| **Focused** | Single component, 3-10 files | codebase-analyzer only | ~15-25K |
-| **Full** | Multi-component, architectural | All distillers | ~40-60K |
-
-### Tier Auto-Detection (from 00_context.md)
-
-```
-IF --micro or --focused or --full flag provided:
-    USE specified tier
-
-ELSE IF 00_context.md has "recommended_research_tier":
-    USE recommended tier from context
-
-ELSE (fallback heuristics):
-    relevant_files = count from "Relevant Files" section
-    task_keywords = check for "refactor", "add", "implement", "fix"
-
-    IF relevant_files <= 3 AND task_keywords contains "fix":
-        SUGGEST: --micro
-    ELSE IF relevant_files <= 10 AND single directory pattern:
-        SUGGEST: --focused
-    ELSE:
-        DEFAULT: --full
-```
-
-## Prerequisites
-
-- Active RPIV session (run `/rpiv_start` first)
-- Session context artifact exists: `00_context.md`
+| Tier | When to Use | Agents |
+|------|-------------|--------|
+| **Micro** | Bug fix, clear scope, <3 files | None (synthesis only) |
+| **Focused** | Single component, 3-10 files | codebase-analyzer only |
+| **Full** | Multi-component, architectural | All distillers |
 
 ## Process
 
@@ -355,7 +318,6 @@ ELSE:
 ## RPIV Research Complete
 
 Research Tier: <micro|focused|full>
-Tokens Saved: <estimate vs full tier>
 
 Created/Updated:
 - $VAULT_BASE/<repo_name>/sessions/<session_id>/$NEXT_VERSION
@@ -375,23 +337,3 @@ Next: <suggested command with reasoning>
 *(To re-run with more depth: /rpiv_research --full)*
 ```
 
-## Important Notes
-
-- **DO NOT paste agent outputs into chat** - they wrote to vault
-- Return only paths and a 10-line max digest
-- Research artifact becomes input for planning phase
-- Knowledge artifacts in `knowledge/` persist across sessions
-
-## Error Handling
-
-If session not found:
-```
-Error: No active RPIV session found.
-Run `/rpiv_start <task>` to begin a new session.
-```
-
-If 00_context.md missing:
-```
-Error: Session context not found at <path>.
-Session may be corrupted. Run `/rpiv_start` to create new session.
-```
