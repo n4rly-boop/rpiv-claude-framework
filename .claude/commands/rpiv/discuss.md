@@ -5,16 +5,8 @@ model: opus
 
 # RPIV Discussion Phase
 
-Facilitate structured discussion and record decisions to vault. Produces a **decision summary** that preserves reasoning for future reference.
+Facilitate structured discussion and record decisions to vault.
 
-## Usage
-
-```
-/rpiv_discuss                           # Auto-detect context from latest artifacts
-/rpiv_discuss --topic "approach"        # Specify topic for artifact naming
-/rpiv_discuss --after research          # Discuss after specific phase
-/rpiv_discuss --after validation        # Discuss validation results
-```
 ## Process
 
 ### Step 1: Load Session Context
@@ -253,28 +245,3 @@ Next: <suggested next command based on context>
   - After retrospective → /rpiv_plan (new iteration)
 ```
 
-## Important Notes
-
-- **Discussions are decision summaries**, not transcripts
-- Focus on capturing the **WHY** behind decisions
-- Keep artifacts concise (300-500 lines max)
-- Always link back to preceding artifacts
-- Record trade-offs explicitly - valuable for future reference
-
-## Error Handling
-
-If no session found:
-```
-Error: No active RPIV session found.
-Run `/rpiv_start <task>` to begin a new session.
-```
-
-If no artifacts to discuss:
-```
-Note: No artifacts found in session yet.
-
-You can still start a scoping discussion to clarify requirements
-before research.
-
-Continue with scoping discussion? (y/n)
-```

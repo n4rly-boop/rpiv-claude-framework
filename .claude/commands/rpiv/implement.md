@@ -7,22 +7,6 @@ model: opus
 
 Execute an approved implementation plan. **Requires plan artifact - will refuse without it.**
 
-## Usage
-
-```
-/rpiv_implement                         # Use plan from current session
-/rpiv_implement --session <session_id>  # Specify session
-/rpiv_implement --phase N               # Implement specific phase only
-/rpiv_implement --resume                # Resume from last incomplete phase
-/rpiv_implement --fix                   # Quick fix: bypass plan, fix validation issues
-```
-
-## Prerequisites
-
-- Active RPIV session with `00_context.md`
-- **Plan artifact `2X_plan.md` REQUIRED** (latest version, no override)
-- **Exception**: `--fix` flag bypasses plan requirement (requires prior validation artifact)
-
 ## Enforcement
 
 ### Fix Mode Check (--fix flag)
@@ -33,13 +17,7 @@ IF --fix flag provided:
     LATEST_VALID=$(ls -1 $SESSION_PATH/4?_validation.md 2>/dev/null | sort -V | tail -1)
 
     IF $LATEST_VALID is empty:
-        REFUSE with message:
-
-        Error: --fix requires a previous validation. Run /rpiv_validate first.
-
-        The --fix flag uses validation issues as a guide for fixes.
-        No validation artifact found at: $SESSION_PATH/4?_validation.md
-
+        REFUSE: "--fix requires a previous validation. Run /rpiv_validate first."
         EXIT
 
     ELSE:
@@ -55,28 +33,7 @@ IF --fix flag provided:
 LATEST_PLAN=$(ls -1 $SESSION_PATH/2?_plan.md 2>/dev/null | sort -V | tail -1)
 
 IF $LATEST_PLAN is empty:
-    REFUSE with message:
-
-    Error: Plan artifact not found. Implementation REQUIRES a plan.
-
-    RPIV workflow enforces: Research -> Plan -> Implement -> Validate
-
-    You cannot implement without a plan because:
-    - Implementation without planning leads to inconsistent code
-    - Plans ensure conventions are followed
-    - Plans define validation criteria
-    - Plans identify risks before they become problems
-
-    Required action:
-    1. Run `/rpiv_plan` to create a plan
-    2. Review and approve the plan
-    3. Run `/rpiv_implement` again
-
-    If you have a plan elsewhere, copy it to:
-    $VAULT_BASE/<repo>/sessions/<session>/2X_plan.md (e.g., 20_plan.md)
-
-    Or use `/rpiv_implement --fix` to fix validation issues without a plan.
-
+    REFUSE: "Plan artifact not found. Run `/rpiv_plan` first, or use `--fix` to fix validation issues."
     EXIT
 ```
 
@@ -327,47 +284,3 @@ Next: /rpiv_validate
 Note: Run validation to verify implementation meets all success criteria.
 ```
 
-## Important Notes
-
-- **NEVER skip plan requirement** - this is enforced, not optional
-- **Use /tooling skill** for validation - never invoke linters/testers directly
-  - ✓ CORRECT: `/tooling check`, `/tooling test`
-  - ✗ WRONG: `ruff check .`, `pytest tests/`, `make check`
-- **Document ALL deviations** from plan
-- **Run validation after each phase** before proceeding
-- **Keep tracking artifact updated** in real-time
-
-## Error Handling
-
-If plan missing:
-```
-Error: Plan artifact REQUIRED for implementation.
-
-Cannot proceed because:
-1. Implementation without planning leads to inconsistent code
-2. No validation criteria defined
-3. No risk assessment available
-
-Path checked: $VAULT_BASE/<repo>/sessions/<session>/2?_plan.md (no matches)
-
-Required: Run `/rpiv_plan` first.
-```
-
-If validation fails:
-```
-Phase [N] Validation Failed
-
-Command: /tooling check  (or: /tooling test)
-Exit code: 1
-Output: [summary]
-
-Options:
-1. Fix issues and retry validation
-2. Mark phase incomplete and document blocker
-3. Rollback phase changes
-
-Note: Use the /tooling skill for validation.
-Never run linters or test frameworks directly.
-
-How should I proceed?
-```

@@ -159,7 +159,7 @@ def main():
     try:
         data = json.load(sys.stdin)
         tool_name = data.get('tool_name', '')
-        tool_input = data.get('tool_input', {})
+        tool_input = data.get('tool_input') or {}
 
         is_blocked = False
         reason = ""
@@ -202,9 +202,8 @@ def main():
     except json.JSONDecodeError:
         # If we can't parse input, allow (fail open for usability)
         pass
-    except Exception as e:
-        # Log error but don't block on hook failures
-        print(f"Hook warning: {e}", file=sys.stderr)
+    except Exception:
+        pass
 
     sys.exit(0)  # Allow operation
 

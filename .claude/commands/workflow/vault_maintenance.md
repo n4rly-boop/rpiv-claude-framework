@@ -7,15 +7,6 @@ model: sonnet
 
 Validate and repair Obsidian vault structure for RPIV framework.
 
-## Usage
-
-```
-/vault_maintenance                      # Full audit (dry-run)
-/vault_maintenance --check              # Quick structure check
-/vault_maintenance --fix                # Interactive fix mode
-/vault_maintenance --session <id>       # Validate specific session
-```
-
 ## Process
 
 ### Step 1: Determine Vault Path
@@ -273,53 +264,4 @@ Use `AskUserQuestion` with options:
 <next steps if issues remain>
 ```
 
-## Safety Rules
-
-1. **Default is read-only** - Without `--fix`, never modify anything
-2. **No deletions** - NEVER delete files or folders without explicit per-item approval
-3. **No content changes** - Only modify YAML frontmatter, never body content
-4. **Ask before rename** - Always confirm file/folder renames
-5. **Atomic operations** - Each fix is independent, failure doesn't affect others
-6. **Full logging** - Every change is reported
-
-## Error Handling
-
-**MCP unavailable:**
-```
-Error: Cannot access vault - Obsidian MCP not responding
-
-Check:
-1. MCP server is running
-2. VAULT_BASE is set correctly: $VAULT_BASE
-3. Vault exists at: $VAULT_PATH
-```
-
-**Vault not found:**
-```
-Warning: No vault found at $VAULT_PATH
-
-Options:
-- Initialize new vault structure for this repo
-- Specify different path with --vault <path>
-- Cancel
-```
-
-**Fix failed:**
-```
-Warning: Fix failed for <path>
-Error: <mcp error>
-
-Continuing with next fix...
-```
-
-## Output Format
-
-Always end with:
-
-```
-Vault Maintenance Complete
-==========================
-Health Score: X/100
-Issues: N critical, N warnings, N info
-<recommendation>
-```
+Without `--fix`, never modify anything. Never delete files or folders without explicit per-item approval. Only modify YAML frontmatter, never body content. Always confirm renames.

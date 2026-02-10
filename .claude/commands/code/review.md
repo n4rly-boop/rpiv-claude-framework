@@ -49,9 +49,3 @@ Review recently changed code for issues, then offer to simplify.
    ### Suggestions
    - [improvements that don't change functionality]
    ```
-
-4. **Offer next steps**:
-   - Fix critical issues
-   - Run `/simplify` to clean up
-   - Run `/format` to ensure style
-   - Run `/pr-ready` for full check

@@ -32,20 +32,3 @@ Review changed files and apply simplifications using the code-simplifier agent.
    /tooling format
    /tooling check
    ```
-
-## What Gets Simplified
-
-- Verbose conditionals → concise expressions
-- Unnecessary intermediate variables
-- Loops → comprehensions (when clearer)
-- Nested ifs → early returns
-- String concat → f-strings
-- Redundant patterns
-
-## What's Protected
-
-- Error handling
-- Type annotations
-- Public APIs
-- Performance-critical code
-- Intentionally verbose code

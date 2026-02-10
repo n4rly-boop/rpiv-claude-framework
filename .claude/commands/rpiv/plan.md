@@ -5,45 +5,15 @@ model: opus
 
 # RPIV Plan Phase
 
-Create implementation plan based on research. Analyze context thoroughly, ask clarifying questions where needed, then produce actionable plan.
-
-## Usage
-
-```
-/rpiv_plan                              # Use research from current session
-/rpiv_plan --session <session_id>       # Specify session
-/rpiv_plan --no-research                # Skip research requirement
-```
-
-## Prerequisites
-
-- Active RPIV session with `00_context.md`
-- **Research artifact `1X_research.md` REQUIRED** (unless `--no-research`)
+Create implementation plan based on research. Present understanding first, confirm with user, then design.
 
 ## Enforcement
 
-### Research Requirement Check
-
 ```
-# Find latest research artifact
 LATEST_RESEARCH=$(ls -1 $SESSION_PATH/1?_research.md 2>/dev/null | sort -V | tail -1)
 
 IF $LATEST_RESEARCH is empty AND --no-research NOT provided:
-    REFUSE with message:
-
-    Error: Research artifact not found.
-
-    RPIV workflow requires research before planning.
-
-    Options:
-    1. Run `/rpiv_research` first
-    2. Use `/rpiv_plan --no-research` to skip (not recommended)
-
-    Research helps ensure:
-    - Existing patterns are followed
-    - Risks are identified early
-    - Implementation aligns with codebase conventions
-
+    REFUSE: "Research artifact not found. Run `/rpiv_research` first, or use `/rpiv_plan --no-research` to skip."
     EXIT
 ```
 
@@ -59,61 +29,66 @@ IF $LATEST_RESEARCH is empty AND --no-research NOT provided:
    ```
 4. **Read knowledge artifacts** from `$VAULT_BASE/<repo_name>/knowledge/`
 
-### Step 2: Analyze & Identify Gaps
+### Step 2: Present Understanding
 
-Thoroughly analyze the task considering:
+Summarize what was read — no analysis yet:
 
-**Main flow:**
+```
+## My Understanding
+
+**Task**: <from 00_context.md>
+**Scope**: <files/components affected>
+
+**Key research findings**:
+- <finding 1>
+- <finding 2>
+
+**Intended approach**: <high-level direction from research>
+```
+
+### Step 3: Confirm with User (MANDATORY)
+
+Use `AskUserQuestion` to confirm understanding. **Never skip this step.**
+
+```
+Is this understanding correct?
+- Yes, proceed with planning
+- Partially — let me clarify
+- No — here's what I actually need
+```
+
+Wait for response. Incorporate corrections before proceeding.
+
+### Step 4: Analyze & Design
+
+Based on confirmed understanding:
+
+**Analyze:**
+
+*Main flow:*
 - What's the happy path?
 - What are the core requirements?
 
-**Edge cases:**
+*Edge cases:*
 - What happens with empty/null inputs?
 - Concurrent access scenarios?
 - Error states and recovery?
 
-**Tricky parts:**
+*Tricky parts:*
 - Integration points with existing code
 - Potential breaking changes
 - Performance implications
 - Security considerations
 
-**Ambiguities:**
-- Unclear requirements from task description
-- Multiple valid approaches
-- Missing information needed for implementation
-
-### Step 3: Ask Clarifying Questions
-
-If gaps or ambiguities identified, ask clarifying questions using `AskUserQuestion`.
-
-Focus on questions that:
-- Would significantly change the implementation approach
-- Resolve ambiguities that can't be inferred from context
-- Clarify scope boundaries
-
-Do NOT ask about:
-- Details that can be reasonably inferred
-- Implementation minutiae
-- Things already answered in research
-
-### Step 4: Design Implementation
-
-Based on context and clarifications:
-
+**Design:**
 1. **Break task into phases** - each independently testable
 2. **For each phase** - define goal, files, patterns, validation
 3. **Identify risks** - from edge cases and tricky parts analysis
 4. **Define manual testing** - specific, actionable verification steps
 
----
-
-### Step 2: Write Plan Artifact
-
-### Step 2.1: Determine Next Artifact Version
+### Step 5: Determine Next Artifact Version
 
 ```bash
-# Find existing plan artifacts and get next version
 EXISTING=$(ls -1 $SESSION_PATH/2?_plan.md 2>/dev/null | sort -V | tail -1)
 if [ -z "$EXISTING" ]; then
     NEXT_VERSION="20_plan.md"
@@ -124,7 +99,7 @@ else
 fi
 ```
 
-### Step 2.2: Write Plan Artifact
+### Step 6: Write Plan Artifact
 
 Use `obsidian` MCP to write `$NEXT_VERSION`:
 
@@ -266,13 +241,13 @@ curl -i -X <METHOD> "http://localhost:8001<PATH>" \
 
 **Negative Test Cases**:
 ```bash
-# Test 1: Invalid input
+# Invalid input
 curl -i -X <METHOD> "http://localhost:8001<PATH>" \
   -H "Content-Type: application/json" \
   -d '{"invalid": "data"}'
 # Expected: 400 Bad Request
 
-# Test 2: Missing auth (if required)
+# Missing auth (if required)
 curl -i -X <METHOD> "http://localhost:8001<PATH>"
 # Expected: 401 Unauthorized
 ```
@@ -282,12 +257,6 @@ curl -i -X <METHOD> "http://localhost:8001<PATH>"
 - [ ] Response matches schema
 - [ ] Side effects observable
 - [ ] Negative cases handled correctly
-
-### Validation Checklist
-- [ ] All features have manual test steps
-- [ ] All curl commands are copy-pasteable (with placeholders clearly marked)
-- [ ] Expected responses are specific, not vague
-- [ ] Side effects are observable and documented
 
 ## Rollback Plan
 
@@ -320,13 +289,11 @@ From `knowledge/conventions/main.md`:
 - Conventions: `$VAULT_BASE/<repo>/knowledge/conventions/main.md`
 ```
 
-### Step 3: Update Session Index
+### Step 7: Update Session Index
 
-**CRITICAL: The index MUST track ALL artifacts. Follow this logic precisely:**
+**The index MUST track ALL artifacts. Follow this logic precisely:**
 
-#### 6.1: Update Progress Table
-
-**Determine if this is first plan or an iteration:**
+#### 7.1: Update Progress Table
 
 ```
 IF $NEXT_VERSION == "20_plan.md":
@@ -336,7 +303,6 @@ IF $NEXT_VERSION == "20_plan.md":
 
 ELSE (iteration - 21, 22, 23...):
     # Iteration - ADD a new row AFTER the last Plan-related row:
-    # Extract iteration number: 21 -> "1", 22 -> "2", etc.
     ITERATION_NUM = $NEXT_VERSION[1]  # second digit
     ITERATION_LABEL = "Plan (fixes)" if ITERATION_NUM == 1 else "Plan (fixes $ITERATION_NUM)"
 
@@ -344,7 +310,7 @@ ELSE (iteration - 21, 22, 23...):
     | $ITERATION_LABEL | complete | [$NEXT_VERSION](./$NEXT_VERSION) | <timestamp> |
 ```
 
-**Example Progress table after multiple iterations:**
+**Example after iterations:**
 ```markdown
 | Phase | Status | Artifact | Updated |
 |-------|--------|----------|---------|
@@ -357,7 +323,7 @@ ELSE (iteration - 21, 22, 23...):
 | Validate | pending | - | - |
 ```
 
-#### 6.2: Update Artifacts Section
+#### 7.2: Update Artifacts Section
 
 **ALWAYS append new artifact to the Artifacts list:**
 
@@ -370,7 +336,7 @@ ELSE (iteration - 21, 22, 23...):
 - [21_plan.md](./21_plan.md) - Plan fixes iteration 1       <-- ADD THIS
 ```
 
-#### 6.3: Update Timeline
+#### 7.3: Update Timeline
 
 **ALWAYS append new entry at the END of the Timeline table:**
 
@@ -385,7 +351,7 @@ ELSE (iteration - 21, 22, 23...):
 | 2026-01-13T14:00:00Z | Plan iteration created (21_plan.md) - fixes for validation issues |  <-- ADD THIS
 ```
 
-### Step 4: Report
+### Step 8: Report
 
 ```
 ## RPIV Plan Complete
@@ -406,34 +372,4 @@ Top Risks:
 - <risk 1>
 
 Next: /rpiv_implement
-```
-
-## Important Notes
-
-- Analyze context thoroughly before planning
-- Ask clarifying questions for significant ambiguities
-- Consider edge cases and tricky parts, not just happy path
-- Each phase should be completable in one focused session
-- Validation criteria must be specific and testable
-
-## Error Handling
-
-If research missing (without `--no-research`):
-```
-Error: Research artifact required.
-
-Path checked: $VAULT_BASE/<repo>/sessions/<session>/1?_research.md (no matches)
-
-Run `/rpiv_research` first, or use `--no-research` to proceed without research.
-
-Note: Skipping research may result in:
-- Missing existing patterns
-- Convention violations
-- Undiscovered risks
-```
-
-If session not found:
-```
-Error: No active RPIV session.
-Run `/rpiv_start <task>` to begin.
 ```

@@ -148,33 +148,4 @@ Some issues might be outside my reach:
 Would you like me to investigate something specific further?
 ```
 
-## Important Notes
-
-- **Focus on investigation** - This is for debugging, not fixing
-- **Always require problem description** - Can't debug without knowing what's wrong
-- **Read files completely** - No limit/offset when reading context
-- **Guide back to user** - Some issues are outside reach
-- **No file editing** - Pure investigation only
-
-## Quick Reference
-
-**Git State**:
-```bash
-git status
-git log --oneline -10
-git diff
-```
-
-**Find Logs**:
-```bash
-find . -name "*.log" -mmin -60  # Logs modified in last hour
-tail -100 path/to/app.log       # Recent log entries
-```
-
-**Process Check**:
-```bash
-ps aux | grep [process]
-lsof -i :[port]
-```
-
-Remember: This command helps you investigate without burning the primary window's context. Perfect for when you hit an issue during manual testing and need to dig into logs, state, or git history.
+This command is for investigation only. Do not edit files.

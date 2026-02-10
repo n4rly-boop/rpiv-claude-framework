@@ -5,7 +5,7 @@ model: opus
 
 # RPIV Validate Phase
 
-Run two-pass validation pipeline on implementation with **smart scoping** to reduce token usage.
+Run two-pass validation pipeline on implementation with **smart scoping**.
 
 ## Two-Pass System
 
@@ -22,45 +22,17 @@ Run two-pass validation pipeline on implementation with **smart scoping** to red
 
 ## Pass 2 Agent Selection (Change-Type Gating)
 
-| Change Type | Agents Run | Agents Skipped | Tokens |
-|-------------|------------|----------------|--------|
-| Docs/config only | None | All 4 | ~0 |
-| Single file fix | defensive + logic | integration, security | ~30K |
-| API/schema change | integration + security | defensive, logic | ~30K |
-| Auth/security code | security + defensive | integration, logic | ~30K |
-| Multi-file feature | All 4 (scoped to issue files) | - | ~40-60K |
+| Change Type | Agents Run | Agents Skipped |
+|-------------|------------|----------------|
+| Docs/config only | None | All 4 |
+| Single file fix | defensive + logic | integration, security |
+| API/schema change | integration + security | defensive, logic |
+| Auth/security code | security + defensive | integration, logic |
+| Multi-file feature | All 4 (scoped to issue files) | - |
 
 **Default (no pattern match)**: Run all 4 agents, but only on files with Pass 1 issues.
 
-## Usage
-
-```
-/rpiv_validate                          # Two-pass with smart scoping (default)
-/rpiv_validate --fast                   # Pass 1 only (skip Pass 2 even if issues found)
-/rpiv_validate --full                   # Force all 4 Pass 2 agents on all changed files
-/rpiv_validate --session <session_id>   # Specify session
-```
-
-## Flags
-
-### `--fast`
-Run only Pass 1 (surface scan), skip Pass 2 even if critical issues found.
-
-**Use when:**
-- You want quick feedback
-- You'll manually review issues
-- You're iterating rapidly
-
-### `--full`
-Force full Pass 2 (all 4 agents on all changed files), bypassing smart scoping.
-
-**Use when:**
-- Major refactor or architectural change
-- You want comprehensive review regardless of change type
-- Final validation before important release
-
-### `--session <session_id>`
-Specify which session to validate (default: most recent)
+Flags: `--fast` skips Pass 2. `--full` forces all 4 agents on all changed files.
 
 ## Process
 
@@ -216,7 +188,7 @@ ELSE:
     files_to_review = files_with_issues  # From Step 3.3
 
 # Log scoping decision
-INFORM user: "Pass 2 Scope: <N> agents on <M> files (saved ~<X>K tokens vs full)"
+INFORM user: "Pass 2 Scope: <N> agents on <M> files"
 ```
 
 #### 4.2: Launch Selected Agents in Parallel
@@ -295,7 +267,6 @@ change_type: <docs_config|security_sensitive|api_schema|localized_fix|multi_file
 pass_2_triggered: true | false
 pass_2_agents: [<list of agents run>]
 pass_2_files: [<list of files reviewed>]
-tokens_saved: <estimate>
 sources:
   - $LATEST_IMPL
   - $LATEST_PLAN
@@ -592,7 +563,6 @@ Agents Run:
 - <agent_name>: Critical: <N> | Warnings: <N>
 
 Agents Skipped: <list or "none">
-Token Savings: ~<X>K vs full Pass 2
 
 <IF Pass 2 ran (full - via --full flag):>
 **Pass 2 Triggered (Full)**: All 4 agents on all <N> changed files
@@ -637,69 +607,3 @@ Based on validation results:
 *(Use --full flag to force comprehensive review if needed)*
 ```
 
-## Important Notes
-
-- **Two-Pass System** - Pass 1 always runs, Pass 2 auto-triggers on critical issues
-  - Use `--fast` to skip Pass 2 for quick iterations
-  - Use `--full` to force comprehensive Pass 2 (all agents, all files)
-
-- **Smart Scoping (NEW)** - Pass 2 is now scoped to save tokens
-  - **Change-Type Gating**: Selects relevant agents based on what changed
-  - **Differential Targeting**: Only reviews files with Pass 1 issues
-  - Token savings: 30-60% vs full Pass 2 for most changes
-  - Override with `--full` flag when comprehensive review needed
-
-- **Fail-All-At-Once** - Never exits early, collects ALL issues
-  - `/tooling check` runs even if `/tooling test` would fail
-  - Agents run even if tooling commands fail
-  - You get complete picture in one run
-
-- **Use /tooling skill** - never invoke linters/testers directly
-  - ✓ CORRECT: `/tooling check`, `/tooling test`, `/tooling format`
-  - ✗ WRONG: `ruff check .`, `pytest tests/`, `black .`, `make check`
-  - The tooling skill handles project-specific command detection
-
-- **Pass 2 Trigger** - Only on CRITICAL issues (not warnings)
-  - Critical from /tooling check/test failures
-  - Critical from code-reviewer agent
-  - Warnings alone don't trigger Pass 2
-  - Docs/config-only changes skip Pass 2 entirely
-
-- **Agent Focus** - Agents review scoped files only
-  - Default: Only files with Pass 1 issues (differential)
-  - With `--full`: All changed files
-  - Success criteria from plan are verified (logic-reviewer)
-
-- **Parallel Execution** - Pass 2 agents run simultaneously
-  - Selected agents launch at once (2-4 depending on change type)
-  - Faster than sequential
-
-## Error Handling
-
-If implementation artifact missing:
-```
-Warning: No implementation artifact found.
-Running validation on current git state.
-
-Changed files detected:
-- <list from git>
-
-Continuing with Pass 1...
-```
-
-If tooling not configured:
-```
-Note: /tooling check skipped - no tooling configured for this project
-Note: /tooling test skipped - no tooling configured for this project
-
-Tip: Run /extract_conventions to configure project tooling.
-
-Continuing with agent review...
-```
-
-If agent timeout or failure:
-```
-Warning: Agent <agent_name> timed out or failed
-Continuing with other agents...
-Validation report will note which agents completed successfully.
-```

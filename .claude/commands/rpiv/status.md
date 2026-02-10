@@ -7,13 +7,6 @@ model: haiku
 
 Show the current state of an RPIV session.
 
-## Usage
-
-```
-/rpiv_status                            # Most recent session
-/rpiv_status --session <session_id>     # Specific session
-```
-
 ## Process
 
 ### Step 1: Find Session

@@ -22,13 +22,6 @@ All extracted documentation goes to `{repo_name}/knowledge/`:
 └── dependencies.md     # Inter-repo deps, shared libs, external services
 ```
 
-## Important: Context Compression
-
-- Use distiller agents for deep analysis
-- Write all docs to vault via MCP
-- Return only paths + brief summary (max 10 lines)
-- **NEVER paste full convention docs into chat**
-
 ## Process
 
 ### Phase 1: Initial Scan
@@ -452,5 +445,3 @@ Key Findings:
 
 Next: /rpiv_start to begin implementation with these conventions
 ```
-
-**IMPORTANT**: Do NOT paste convention contents into chat. Return only paths and brief summary.
