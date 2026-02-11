@@ -83,7 +83,7 @@ Version: find existing `D??_*.md`, increment (start at `D01`). Topic from `--top
 ### Step 5: Re-Research Check
 
 If user requests deeper investigation during discussion:
-- Suggest `/rpiv_research --focus "<topic>"`
+- Suggest `/rpiv:research --focus "<topic>"`
 - Note in artifact: "Research requested on <topic>"
 - End discussion, suggest research command
 
@@ -108,8 +108,8 @@ Key Decisions:
 Impact: <how this affects next phase>
 
 Next: <suggested command>
-  After scope → /rpiv_research
-  After approach → /rpiv_plan
-  After design → /rpiv_implement
-  After retrospective → /rpiv_plan (new iteration)
+  After scope → /rpiv:research
+  After approach → /rpiv:plan
+  After design → /rpiv:implement
+  After retrospective → /rpiv:plan (new iteration)
 ```

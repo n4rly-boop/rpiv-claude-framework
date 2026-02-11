@@ -11,11 +11,11 @@
 │  │    RPIV      │    │   Workflow   │    │    Utility   │      │
 │  │   Commands   │    │   Commands   │    │   Commands   │      │
 │  │              │    │              │    │              │      │
-│  │ /rpiv_start  │    │ /debug       │    │ /commit      │      │
-│  │ /rpiv_research│   │ /pr_ready    │    │ /describe_pr │      │
-│  │ /rpiv_plan   │    │ /session_sum │    │ /docs        │      │
-│  │ /rpiv_impl   │    │ /create_hand │    │ /review      │      │
-│  │ /rpiv_valid  │    │ /resume_hand │    │ /simplify    │      │
+│  │ /rpiv:start  │    │ /debug       │    │ /commit      │      │
+│  │ /rpiv:research│   │ /pr_ready    │    │ /describe_pr │      │
+│  │ /rpiv:plan   │    │ /session_sum │    │ /docs        │      │
+│  │ /rpiv:impl   │    │ /create_hand │    │ /review      │      │
+│  │ /rpiv:valid  │    │ /resume_hand │    │ /simplify    │      │
 │  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘      │
 │         │                   │                   │               │
 │         └───────────────────┼───────────────────┘               │
@@ -193,7 +193,7 @@ The validation phase uses a two-pass approach to balance speed with thoroughness
 ### Skip Pass 2
 Use `--fast` flag for quick iterations:
 ```
-/rpiv_validate --fast
+/rpiv:validate --fast
 ```
 
 ## Context Compression Architecture

@@ -55,17 +55,17 @@ Discussion artifacts add: `topic: scope|approach|design|review|retrospective`
 
 | Phase | Command | Artifacts | Key Rules |
 |-------|---------|-----------|-----------|
-| Start | `/rpiv_start` | `00_context.md`, `index.md` | Scans vault + codebase, recommends research tier. `--minimal` skips scan |
-| Discuss | `/rpiv_discuss` | `DXX_<topic>.md` | Optional. Record decisions (WHY not what). 300-500 lines max |
-| Research | `/rpiv_research` | `1X_research.md` | Tiered: `--micro` (5-10K), `--focused` (15-25K), `--full` (40-60K). Auto-detects from start |
-| Plan | `/rpiv_plan` | `2X_plan.md` | Requires research (or `--no-research`). MANDATORY clarification before design. MUST include manual test plan |
-| Implement | `/rpiv_implement` | `3X_implementation.md` | Requires plan artifact (or `--fix` for validation fixes) |
-| Validate | `/rpiv_validate` | `4X_validation.md` | Two-pass system (see below). `--fast` skips Pass 2 |
+| Start | `/rpiv:start` | `00_context.md`, `index.md` | Scans vault + codebase, recommends research tier. `--minimal` skips scan |
+| Discuss | `/rpiv:discuss` | `DXX_<topic>.md` | Optional. Record decisions (WHY not what). 300-500 lines max |
+| Research | `/rpiv:research` | `1X_research.md` | Tiered: `--micro` (5-10K), `--focused` (15-25K), `--full` (40-60K). Auto-detects from start |
+| Plan | `/rpiv:plan` | `2X_plan.md` | Requires research (or `--no-research`). MANDATORY clarification before design. MUST include manual test plan |
+| Implement | `/rpiv:implement` | `3X_implementation.md` | Requires plan artifact (or `--fix` for validation fixes) |
+| Validate | `/rpiv:validate` | `4X_validation.md` | Two-pass system (see below). `--fast` skips Pass 2 |
 | Summarize | `/session_summary` | `50_session_summary.md` | Verification playbook, future work, limitations |
 
 ### Tiered Research
-Auto-detected from `/rpiv_start` context. Override with explicit flag.
-See `/rpiv_research` command for full tier definitions and agent details.
+Auto-detected from `/rpiv:start` context. Override with explicit flag.
+See `/rpiv:research` command for full tier definitions and agent details.
 
 | Tier | Quick Reference |
 |------|-----------------|
@@ -109,8 +109,8 @@ Next: <suggested_command>
 1. Creating `.claude/artifacts` directory
 2. Using symlinks for artifact storage
 3. Pasting >50 lines of code in chat
-4. `/rpiv_implement` without plan artifact
-5. `/rpiv_plan` without research artifact (unless `--no-research`)
+4. `/rpiv:implement` without plan artifact
+5. `/rpiv:plan` without research artifact (unless `--no-research`)
 6. Distiller outputs >400 lines
 7. Raw agent outputs without vault persistence
 8. Running linters directly (`ruff`, `black`, `mypy`, `pytest`, `make check`) - use `/tooling` skill

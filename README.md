@@ -78,7 +78,7 @@ Create the base vault directory structure:
 mkdir -p ~/context_vault
 
 # The framework will auto-create repo-specific directories
-# when you run /rpiv_start
+# when you run /rpiv:start
 ```
 
 **Vault structure** (created automatically per-repo):
@@ -129,7 +129,7 @@ cd /path/to/your/project
 claude
 
 # Verify RPIV commands are available
-> /rpiv_start --help
+> /rpiv:start --help
 
 # Run vault health check
 > /vault_maintenance --check
@@ -141,22 +141,22 @@ claude
 
 ```bash
 # 1. Start a session with enhanced context gathering
-/rpiv_start "Add user authentication to API"
+/rpiv:start "Add user authentication to API"
 
 # 2. Research the codebase (spawns distiller agents)
-/rpiv_research
+/rpiv:research
 
 # 3. [Optional] Discuss approach if research raises questions
-/rpiv_discuss --topic approach
+/rpiv:discuss --topic approach
 
 # 4. Create implementation plan (requires research artifact)
-/rpiv_plan
+/rpiv:plan
 
 # 5. Execute the plan (requires plan artifact)
-/rpiv_implement
+/rpiv:implement
 
 # 6. Validate implementation (two-pass system)
-/rpiv_validate
+/rpiv:validate
 
 # 7. Create session summary with manual testing playbook
 /session_summary
@@ -192,12 +192,12 @@ claude
 
 | Phase | Command | Artifact | Purpose |
 |-------|---------|----------|---------|
-| **Start** | `/rpiv_start` | `00_context.md` | Initialize session, gather context |
-| **Discuss** | `/rpiv_discuss` | `DXX_<topic>.md` | Record decisions (optional) |
-| **Research** | `/rpiv_research` | `1X_research.md` | Analyze codebase via distillers |
-| **Plan** | `/rpiv_plan` | `2X_plan.md` | Create implementation plan |
-| **Implement** | `/rpiv_implement` | `3X_implementation.md` | Execute plan |
-| **Validate** | `/rpiv_validate` | `4X_validation.md` | Two-pass validation |
+| **Start** | `/rpiv:start` | `00_context.md` | Initialize session, gather context |
+| **Discuss** | `/rpiv:discuss` | `DXX_<topic>.md` | Record decisions (optional) |
+| **Research** | `/rpiv:research` | `1X_research.md` | Analyze codebase via distillers |
+| **Plan** | `/rpiv:plan` | `2X_plan.md` | Create implementation plan |
+| **Implement** | `/rpiv:implement` | `3X_implementation.md` | Execute plan |
+| **Validate** | `/rpiv:validate` | `4X_validation.md` | Two-pass validation |
 | **Summary** | `/session_summary` | `50_session_summary.md` | Final summary |
 
 ### Artifact Versioning
@@ -236,7 +236,7 @@ Auto-triggers when Pass 1 finds **critical issues**. Runs 4 specialists **in par
 
 **Skip Pass 2** for quick iterations:
 ```bash
-/rpiv_validate --fast
+/rpiv:validate --fast
 ```
 
 ---

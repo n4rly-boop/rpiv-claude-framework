@@ -6,7 +6,7 @@ Complete reference for all RPIV framework slash commands.
 
 ## RPIV Core Commands
 
-### `/rpiv_start`
+### `/rpiv:start`
 
 **Description**: Start an RPIV session with enhanced context gathering - scans vault for related knowledge, checks codebase, asks clarifying questions.
 
@@ -14,9 +14,9 @@ Complete reference for all RPIV framework slash commands.
 
 **Usage**:
 ```
-/rpiv_start [task_description]
-/rpiv_start "Add user authentication to API"
-/rpiv_start --minimal                    # Skip context scan (fast start)
+/rpiv:start [task_description]
+/rpiv:start "Add user authentication to API"
+/rpiv:start --minimal                    # Skip context scan (fast start)
 ```
 
 **Creates**:
@@ -41,12 +41,12 @@ Context Scan Results:
 - Patterns: N found
 - Relevant files: N identified
 
-Next: /rpiv_research (or /rpiv_discuss if questions remain)
+Next: /rpiv:research (or /rpiv:discuss if questions remain)
 ```
 
 ---
 
-### `/rpiv_discuss`
+### `/rpiv:discuss`
 
 **Description**: Facilitate structured discussion and record decisions to vault. Produces decision summaries, not transcripts.
 
@@ -54,10 +54,10 @@ Next: /rpiv_research (or /rpiv_discuss if questions remain)
 
 **Usage**:
 ```
-/rpiv_discuss                           # Auto-detect context from latest artifacts
-/rpiv_discuss --topic "approach"        # Specify topic for artifact naming
-/rpiv_discuss --after research          # Discuss after specific phase
-/rpiv_discuss --after validation        # Discuss validation results
+/rpiv:discuss                           # Auto-detect context from latest artifacts
+/rpiv:discuss --topic "approach"        # Specify topic for artifact naming
+/rpiv:discuss --after research          # Discuss after specific phase
+/rpiv:discuss --after validation        # Discuss validation results
 ```
 
 **When to Use**:
@@ -92,7 +92,7 @@ Next: <suggested command based on context>
 
 ---
 
-### `/rpiv_research`
+### `/rpiv:research`
 
 **Description**: RPIV Research phase - gather context using distiller agents, write research artifact to vault.
 
@@ -100,9 +100,9 @@ Next: <suggested command based on context>
 
 **Usage**:
 ```
-/rpiv_research                           # Use current session
-/rpiv_research --session <session_id>    # Specify session
-/rpiv_research --focus "authentication"  # Focus area
+/rpiv:research                           # Use current session
+/rpiv:research --session <session_id>    # Specify session
+/rpiv:research --focus "authentication"  # Focus area
 ```
 
 **Prerequisites**:
@@ -125,15 +125,15 @@ Key Findings: [list]
 Open Questions: N
 Risks Identified: N
 
-Next: /rpiv_discuss --topic "approach" (if open questions)
-      /rpiv_plan (if no blocking questions)
+Next: /rpiv:discuss --topic "approach" (if open questions)
+      /rpiv:plan (if no blocking questions)
 ```
 
-**Note**: Auto-suggests `/rpiv_discuss` if research identifies open questions or high-risk items.
+**Note**: Auto-suggests `/rpiv:discuss` if research identifies open questions or high-risk items.
 
 ---
 
-### `/rpiv_plan`
+### `/rpiv:plan`
 
 **Description**: RPIV Plan phase - create implementation plan from research. Requires research artifact unless `--no-research`.
 
@@ -141,9 +141,9 @@ Next: /rpiv_discuss --topic "approach" (if open questions)
 
 **Usage**:
 ```
-/rpiv_plan                              # Use research from current session
-/rpiv_plan --session <session_id>       # Specify session
-/rpiv_plan --no-research                # Skip research requirement
+/rpiv:plan                              # Use research from current session
+/rpiv:plan --session <session_id>       # Specify session
+/rpiv:plan --no-research                # Skip research requirement
 ```
 
 **Prerequisites**:
@@ -159,12 +159,12 @@ Phases: N
 Files affected: N
 Risk level: Low|Medium|High
 
-Next: /rpiv_implement
+Next: /rpiv:implement
 ```
 
 ---
 
-### `/rpiv_implement`
+### `/rpiv:implement`
 
 **Description**: RPIV Implement phase - execute implementation plan. REQUIRES plan artifact - will refuse without it.
 
@@ -172,10 +172,10 @@ Next: /rpiv_implement
 
 **Usage**:
 ```
-/rpiv_implement                         # Use plan from current session
-/rpiv_implement --session <session_id>  # Specify session
-/rpiv_implement --phase N               # Implement specific phase only
-/rpiv_implement --resume                # Resume from last incomplete phase
+/rpiv:implement                         # Use plan from current session
+/rpiv:implement --session <session_id>  # Specify session
+/rpiv:implement --phase N               # Implement specific phase only
+/rpiv:implement --resume                # Resume from last incomplete phase
 ```
 
 **Prerequisites**:
@@ -191,12 +191,12 @@ Phases completed: N/total
 Files changed: N
 Lines: +added, -removed
 
-Next: /rpiv_validate
+Next: /rpiv:validate
 ```
 
 ---
 
-### `/rpiv_validate`
+### `/rpiv:validate`
 
 **Description**: RPIV Validate phase - two-pass validation system.
 
@@ -204,9 +204,9 @@ Next: /rpiv_validate
 
 **Usage**:
 ```
-/rpiv_validate                          # Two-pass (default)
-/rpiv_validate --fast                   # Pass 1 only
-/rpiv_validate --session <session_id>   # Specify session
+/rpiv:validate                          # Two-pass (default)
+/rpiv:validate --fast                   # Pass 1 only
+/rpiv:validate --session <session_id>   # Specify session
 ```
 
 **Two-Pass System**:
@@ -525,12 +525,12 @@ Then provide research query when prompted.
 
 | Command | Model | Purpose |
 |---------|-------|---------|
-| `/rpiv_start` | sonnet | Start RPIV session (enhanced context) |
-| `/rpiv_discuss` | opus | Facilitate & record decisions |
-| `/rpiv_research` | opus | Research phase |
-| `/rpiv_plan` | opus | Planning phase |
-| `/rpiv_implement` | opus | Implementation phase |
-| `/rpiv_validate` | opus | Validation phase |
+| `/rpiv:start` | sonnet | Start RPIV session (enhanced context) |
+| `/rpiv:discuss` | opus | Facilitate & record decisions |
+| `/rpiv:research` | opus | Research phase |
+| `/rpiv:plan` | opus | Planning phase |
+| `/rpiv:implement` | opus | Implementation phase |
+| `/rpiv:validate` | opus | Validation phase |
 | `/session_summary` | opus | Create session summary |
 | `/debug` | - | Debug issues |
 | `/pr_ready` | - | Pre-PR checklist |

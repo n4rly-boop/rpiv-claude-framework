@@ -13,7 +13,7 @@ Show the current state of an RPIV session.
 
 Use `--session` argument if provided, else find most recent session from `$VAULT_BASE/<repo_name>/sessions/`.
 
-If not found: "No active RPIV session found. Run `/rpiv_start <task>` to begin."
+If not found: "No active RPIV session found. Run `/rpiv:start <task>` to begin."
 
 ### Step 2: Read Context
 
@@ -46,10 +46,10 @@ Next: <phase-based suggestion>
 
 | Phase | Next |
 |-------|------|
-| Start | `/rpiv_research` |
-| Discuss | `/rpiv_research` or `/rpiv_plan --no-research` |
-| Research | `/rpiv_plan` |
-| Plan | `/rpiv_implement` |
-| Implement | `/rpiv_validate` |
-| Validate | `/rpiv_implement --fix` (if issues) or `/session_summary` |
-| Complete | Session complete. `/rpiv_start` for new |
+| Start | `/rpiv:research` |
+| Discuss | `/rpiv:research` or `/rpiv:plan --no-research` |
+| Research | `/rpiv:plan` |
+| Plan | `/rpiv:implement` |
+| Implement | `/rpiv:validate` |
+| Validate | `/rpiv:implement --fix` (if issues) or `/session_summary` |
+| Complete | Session complete. `/rpiv:start` for new |

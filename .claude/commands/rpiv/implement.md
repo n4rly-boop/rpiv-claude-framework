@@ -12,12 +12,12 @@ Execute an approved implementation plan. **Requires plan artifact.**
 ```
 IF --fix flag:
     LATEST_VALID = latest 4?_validation.md in session
-    IF empty: REFUSE: "--fix requires a previous validation. Run /rpiv_validate first."
+    IF empty: REFUSE: "--fix requires a previous validation. Run /rpiv:validate first."
     ELSE: Use validation issues as guide, skip to Step 3
 
 IF NOT --fix:
     LATEST_PLAN = latest 2?_plan.md in session
-    IF empty: REFUSE: "Plan artifact not found. Run /rpiv_plan first, or use --fix for validation fixes."
+    IF empty: REFUSE: "Plan artifact not found. Run /rpiv:plan first, or use --fix for validation fixes."
 ```
 
 ## Process
@@ -90,5 +90,5 @@ Summary:
 
 Deviations: N documented
 
-Next: /rpiv_validate
+Next: /rpiv:validate
 ```
