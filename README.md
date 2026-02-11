@@ -33,7 +33,7 @@ The Obsidian MCP server enables artifact persistence to your vault.
 
 ```bash
 # Add Obsidian MCP server (user scope)
-claude mcp add obsidian --scope user -- npx -y @anthropic/mcp-obsidian
+claude mcp add obsidian --scope user -- npx -y @mauricio.wolff/mcp-obsidian@latest
 ```
 
 #### 1.2 Add Context7 MCP Server (Optional but Recommended)
@@ -315,7 +315,7 @@ claude mcp list --scope user
 claude mcp remove obsidian --scope user
 claude mcp add obsidian --scope user \
   -e OBSIDIAN_VAULT_PATH="$HOME/context_vault" \
-  -- npx -y @anthropic/mcp-obsidian
+  -- npx -y @mauricio.wolff/mcp-obsidian@latest
 
 # Check Claude Code logs
 claude --debug

@@ -17,11 +17,15 @@ IF empty AND --no-research NOT provided:
 
 ## Process
 
-### Step 1: Load Context
+### Step 1: Load Context & Knowledge
 
 1. Find active session, read `00_context.md` for task description
 2. Read latest research (unless `--no-research`)
-3. Read knowledge artifacts from `$VAULT_BASE/<repo_name>/knowledge/`
+3. Load knowledge artifacts from `$VAULT_BASE/<repo_name>/knowledge/`:
+   - `conventions/main.md` → **design constraints** (naming, structure, error handling rules to follow)
+   - `patterns/main.md` → **reusable designs** (implementation templates to model after)
+   - Any topic-specific files in `patterns/` or `conventions/` relevant to the task
+4. Internalize knowledge as planning inputs: conventions are hard constraints (must follow), patterns are preferred solutions (use when applicable)
 
 ### Step 2: Present Understanding (MANDATORY)
 
@@ -45,7 +49,11 @@ Incorporate corrections before proceeding. Do NOT proceed to Step 4 until you ha
 
 **Analyze**: Happy path, edge cases (empty/null, concurrent, error states), tricky parts (integration, breaking changes, performance, security).
 
-**Design**: Break into independently testable phases. For each: goal, files, patterns, validation. Identify risks. Define manual testing steps.
+**Design with knowledge**:
+- Check loaded patterns for existing solutions — reuse before inventing. If a pattern covers the task (e.g., "API endpoint pattern", "service layer pattern"), base the phase design on it.
+- Apply conventions as constraints — naming, file placement, import order, error handling style must match `conventions/main.md`. Flag any case where the task requires deviating from convention.
+- Check for documented anti-patterns or pitfalls in knowledge and design around them.
+- Break into independently testable phases. For each: goal, files, pattern reference (if applicable), validation. Identify risks. Define manual testing steps.
 
 ### Step 5: Write Plan Artifact
 

@@ -22,11 +22,15 @@ IF NOT --fix:
 
 ## Process
 
-### Step 1: Load Plan
+### Step 1: Load Plan & Knowledge
 
 1. Find active session, read latest plan completely
 2. Check for existing checkmarks `- [x]` (partial completion)
 3. Read all files mentioned in plan to understand context
+4. Load knowledge artifacts from `$VAULT_BASE/<repo_name>/knowledge/`:
+   - `conventions/main.md` → coding rules (naming, structure, error handling, imports)
+   - `patterns/main.md` → implementation templates to follow
+   - Any pattern files referenced in the plan's "Patterns Used" section
 
 ### Step 2: Create Implementation Tracking
 
@@ -38,20 +42,26 @@ Version: find existing `3?_implementation.md`, increment (start at `30`). Write 
 
 ### Step 3: Execute Each Phase
 
-**Fix mode** (`--fix`): Reference validation issues, fix sequentially, run `/tooling check` + `/tooling test` after all fixes. No plan phases.
+**Fix mode** (`--fix`): Reference validation issues, fix sequentially. Consult knowledge for correct patterns before fixing (a validation failure may stem from a convention violation — fix the root cause, not just the symptom). Run `/tooling check` + `/tooling test` after all fixes. No plan phases.
 
 **Normal mode** — for each plan phase:
 
 1. Mark phase `in_progress` in tracking artifact
 2. Read all files mentioned in phase
-3. Apply changes following plan specs, conventions from `knowledge/conventions/main.md`, patterns from `knowledge/patterns/`
-4. Run phase validation:
+3. **Before writing code**, check loaded knowledge for:
+   - Naming conventions (variables, functions, files, classes)
+   - Error handling style (exceptions vs result types, logging patterns)
+   - Import ordering and module structure rules
+   - Anti-patterns or documented pitfalls to avoid
+   - Existing patterns that match this phase's work — model new code after them
+4. Apply changes following plan specs. Every new function/class/module must conform to conventions. When the plan references a pattern, follow the pattern's structure.
+5. Run phase validation:
    - `/tooling check` (formatting, linting, type checking)
    - `/tooling test` (unit tests)
    - Execute manual tests from plan
    - Fix failures before proceeding
-5. Update tracking: mark completed items in plan, update progress
-6. If plan mismatch found, use `AskUserQuestion` with options: A) adapt (document deviation), B) update plan first, C) ask for guidance. **NEVER choose for the user.**
+6. Update tracking: mark completed items in plan, update progress
+7. If plan mismatch found, use `AskUserQuestion` with options: A) adapt (document deviation), B) update plan first, C) ask for guidance. **NEVER choose for the user.**
 
 ### Step 4: Phase Completion Protocol
 
