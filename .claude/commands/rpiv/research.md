@@ -117,8 +117,8 @@ Follow standard index update protocol:
 
 ### Step 6: Determine Next Step
 
-- Open questions or high-risk items → Suggest `/rpiv_discuss --topic "approach"`
-- Otherwise → Suggest `/rpiv_plan`
+- Open questions or high-risk items → Suggest `/rpiv:discuss --topic "approach"`
+- Otherwise → Suggest `/rpiv:plan`
 
 ### Step 7: Report
 
@@ -136,5 +136,5 @@ Key Findings:
 Open Questions: N | Risks Identified: N
 
 Next: <suggested command with reasoning>
-*(To re-run with more depth: /rpiv_research --full)*
+*(To re-run with more depth: /rpiv:research --full)*
 ```

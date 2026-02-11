@@ -8,7 +8,7 @@ This guide walks through the complete RPIV (Research → Plan → Implement → 
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
 │   START     │────▶│  RESEARCH   │────▶│    PLAN     │────▶│  IMPLEMENT  │
 │  (enhanced) │     │             │     │             │     │             │
-│ /rpiv_start │     │ /rpiv_      │     │ /rpiv_plan  │     │ /rpiv_      │
+│ /rpiv:start │     │ /rpiv:      │     │ /rpiv:plan  │     │ /rpiv:      │
 │             │     │ research    │     │             │     │ implement   │
 └──────┬──────┘     └──────┬──────┘     └──────┬──────┘     └──────┬──────┘
        │                   │                   │                   │
@@ -22,7 +22,7 @@ This guide walks through the complete RPIV (Research → Plan → Implement → 
                     ┌─────────────┐     ┌─────────────┐            │
                     │   SUMMARY   │◀────│  VALIDATE   │◀───────────┘
                     │             │     │             │
-                    │ /session_   │     │ /rpiv_      │
+                    │ /session_   │     │ /rpiv:      │
                     │ summary     │     │ validate    │
                     └─────────────┘     └──────┬──────┘
                                                │
@@ -33,7 +33,7 @@ This guide walks through the complete RPIV (Research → Plan → Implement → 
                                           └─────────┘
 ```
 
-**Discussion points** (`/rpiv_discuss`) are optional but recommended when:
+**Discussion points** (`/rpiv:discuss`) are optional but recommended when:
 - Research finds open questions (auto-suggested)
 - Multiple valid approaches exist
 - Significant trade-offs need user input
@@ -45,9 +45,9 @@ This guide walks through the complete RPIV (Research → Plan → Implement → 
 
 ### Command
 ```
-/rpiv_start [task_description]
-/rpiv_start "Add user authentication to API"
-/rpiv_start --minimal                    # Skip context scan (fast start)
+/rpiv:start [task_description]
+/rpiv:start "Add user authentication to API"
+/rpiv:start --minimal                    # Skip context scan (fast start)
 ```
 
 ### What Happens
@@ -98,7 +98,7 @@ Task: Add user authentication to API
 - Scope: Standard (core + common edge cases)
 - Build on previous session: Yes
 
-Next: /rpiv_research (or /rpiv_discuss --topic "scope" if questions remain)
+Next: /rpiv:research (or /rpiv:discuss --topic "scope" if questions remain)
 ```
 
 ---
@@ -107,9 +107,9 @@ Next: /rpiv_research (or /rpiv_discuss --topic "scope" if questions remain)
 
 ### Command
 ```
-/rpiv_discuss                           # Auto-detect context
-/rpiv_discuss --topic "approach"        # Specify topic
-/rpiv_discuss --after research          # Discuss after specific phase
+/rpiv:discuss                           # Auto-detect context
+/rpiv:discuss --topic "approach"        # Specify topic
+/rpiv:discuss --after research          # Discuss after specific phase
 ```
 
 ### When to Use
@@ -140,7 +140,7 @@ Impact:
 - Plan will follow patterns/auth-middleware.md
 - Need to add Redis dependency
 
-Next: /rpiv_plan
+Next: /rpiv:plan
 ```
 
 ### Discussion Artifact Structure
@@ -178,13 +178,13 @@ Trigger: Open questions from research
 
 ### Command
 ```
-/rpiv_research                           # Use current session
-/rpiv_research --session <session_id>    # Specify session
-/rpiv_research --focus "authentication"  # Focus area
+/rpiv:research                           # Use current session
+/rpiv:research --session <session_id>    # Specify session
+/rpiv:research --focus "authentication"  # Focus area
 ```
 
 ### Prerequisites
-- Active RPIV session (run `/rpiv_start` first)
+- Active RPIV session (run `/rpiv:start` first)
 - Session context artifact exists: `00_context.md`
 
 ### What Happens
@@ -232,7 +232,7 @@ Key Findings:
 Open Questions: 2
 Risks Identified: 1
 
-Next: /rpiv_plan
+Next: /rpiv:plan
 ```
 
 ---
@@ -241,9 +241,9 @@ Next: /rpiv_plan
 
 ### Command
 ```
-/rpiv_plan                              # Use research from current session
-/rpiv_plan --session <session_id>       # Specify session
-/rpiv_plan --no-research                # Skip research requirement (not recommended)
+/rpiv:plan                              # Use research from current session
+/rpiv:plan --session <session_id>       # Specify session
+/rpiv:plan --no-research                # Skip research requirement (not recommended)
 ```
 
 ### Prerequisites
@@ -258,8 +258,8 @@ Error: Research artifact not found.
 RPIV workflow requires research before planning.
 
 Options:
-1. Run `/rpiv_research` first
-2. Use `/rpiv_plan --no-research` to skip (not recommended)
+1. Run `/rpiv:research` first
+2. Use `/rpiv:plan --no-research` to skip (not recommended)
 ```
 
 ### What Happens
@@ -340,7 +340,7 @@ Key Phases:
 Top Risks:
 - Breaking change to existing clients
 
-Next: /rpiv_implement
+Next: /rpiv:implement
 ```
 
 ---
@@ -349,10 +349,10 @@ Next: /rpiv_implement
 
 ### Command
 ```
-/rpiv_implement                         # Use plan from current session
-/rpiv_implement --session <session_id>  # Specify session
-/rpiv_implement --phase N               # Implement specific phase only
-/rpiv_implement --resume                # Resume from last incomplete phase
+/rpiv:implement                         # Use plan from current session
+/rpiv:implement --session <session_id>  # Specify session
+/rpiv:implement --phase N               # Implement specific phase only
+/rpiv:implement --resume                # Resume from last incomplete phase
 ```
 
 ### Prerequisites
@@ -366,9 +366,9 @@ Error: Plan artifact not found. Implementation REQUIRES a plan.
 RPIV workflow enforces: Research -> Plan -> Implement -> Validate
 
 Required action:
-1. Run `/rpiv_plan` to create a plan
+1. Run `/rpiv:plan` to create a plan
 2. Review and approve the plan
-3. Run `/rpiv_implement` again
+3. Run `/rpiv:implement` again
 ```
 
 ### What Happens
@@ -434,7 +434,7 @@ Summary:
 
 Deviations: 0 documented
 
-Next: /rpiv_validate
+Next: /rpiv:validate
 ```
 
 ---
@@ -443,9 +443,9 @@ Next: /rpiv_validate
 
 ### Command
 ```
-/rpiv_validate                          # Two-pass (default)
-/rpiv_validate --fast                   # Pass 1 only
-/rpiv_validate --session <session_id>   # Specify session
+/rpiv:validate                          # Two-pass (default)
+/rpiv:validate --fast                   # Pass 1 only
+/rpiv:validate --session <session_id>   # Specify session
 ```
 
 ### Two-Pass System

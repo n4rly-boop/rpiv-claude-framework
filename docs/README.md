@@ -8,22 +8,22 @@ A structured workflow framework for Claude Code that emphasizes artifact persist
 
 ```bash
 # Start a new RPIV session (enhanced context gathering)
-/rpiv_start "Add user authentication to API"
+/rpiv:start "Add user authentication to API"
 
 # Research the codebase
-/rpiv_research
+/rpiv:research
 
 # Discuss approach if open questions (optional, auto-suggested)
-/rpiv_discuss --topic "approach"
+/rpiv:discuss --topic "approach"
 
 # Create implementation plan
-/rpiv_plan
+/rpiv:plan
 
 # Execute the plan
-/rpiv_implement
+/rpiv:implement
 
 # Validate the implementation
-/rpiv_validate
+/rpiv:validate
 
 # Create session summary
 /session_summary

@@ -57,18 +57,18 @@ make check  # don't use make directly either
 
 **Good**: Specific task description with context scan
 ```
-/rpiv_start "Add JWT authentication to /api/users endpoint with refresh token support"
+/rpiv:start "Add JWT authentication to /api/users endpoint with refresh token support"
 # Wait for context scan and answer clarification questions
 ```
 
 **Also Good**: Fast start when you know what you need
 ```
-/rpiv_start --minimal "Fix typo in auth error message"
+/rpiv:start --minimal "Fix typo in auth error message"
 ```
 
 **Bad**: Vague description
 ```
-/rpiv_start "fix auth"
+/rpiv:start "fix auth"
 ```
 
 ### Using Discussions
@@ -76,14 +76,14 @@ make check  # don't use make directly either
 **Good**: Record significant decisions
 ```
 # After research identifies multiple approaches
-/rpiv_discuss --topic "approach"
+/rpiv:discuss --topic "approach"
 # Discuss trade-offs, record WHY you chose Option A
 ```
 
 **Good**: Clarify before continuing after failure
 ```
 # Validation failed, need to discuss next steps
-/rpiv_discuss --after validation
+/rpiv:discuss --after validation
 # Record what went wrong and the fix strategy
 ```
 
@@ -97,7 +97,7 @@ make check  # don't use make directly either
 ```
 # Research found 3 approaches with different trade-offs
 # User said "use JWT" in chat but reasoning lost
-# Should have used /rpiv_discuss to record the WHY
+# Should have used /rpiv:discuss to record the WHY
 ```
 
 ### Research Phase
@@ -158,8 +158,8 @@ Proceed to Phase 2? (y/n)
 
 **Good**: Use two-pass system
 ```
-/rpiv_validate           # Full validation
-/rpiv_validate --fast    # Quick iteration
+/rpiv:validate           # Full validation
+/rpiv:validate --fast    # Quick iteration
 ```
 
 **Bad**: Manual validation only
@@ -170,7 +170,7 @@ Proceed to Phase 2? (y/n)
 
 ## Discussion Best Practices
 
-### When to Use `/rpiv_discuss`
+### When to Use `/rpiv:discuss`
 
 **Use discussions when**:
 - Research identifies multiple valid approaches
@@ -355,18 +355,18 @@ The resume process:
 
 **Bad**:
 ```
-/rpiv_start "add feature"
+/rpiv:start "add feature"
 [immediately starts coding without research/plan]
 ```
 
 **Good**:
 ```
-/rpiv_start "add feature"
-/rpiv_research
-/rpiv_discuss --topic "approach"    # If open questions exist
-/rpiv_plan
-/rpiv_implement
-/rpiv_validate
+/rpiv:start "add feature"
+/rpiv:research
+/rpiv:discuss --topic "approach"    # If open questions exist
+/rpiv:plan
+/rpiv:implement
+/rpiv:validate
 ```
 
 ### 1.5. Losing Decision Context
@@ -381,7 +381,7 @@ User in chat: "Let's go with B"
 **Good**:
 ```
 Research: "Found 3 approaches: A, B, C"
-/rpiv_discuss --topic "approach"
+/rpiv:discuss --topic "approach"
 [Records: Chose B because X, trade-offs Y, constraints Z]
 ```
 
@@ -397,7 +397,7 @@ Validation: FAIL (3 critical issues)
 ```
 Validation: FAIL (3 critical issues)
 [fixes issues]
-/rpiv_validate
+/rpiv:validate
 Validation: PASS
 /commit
 ```
@@ -448,12 +448,12 @@ Using microservice-distiller to document external interfaces only
 
 | Command | Model | Rationale |
 |---------|-------|-----------|
-| `/rpiv_start` | sonnet | Setup + context scan |
-| `/rpiv_discuss` | opus | Decision facilitation |
-| `/rpiv_research` | opus | Complex synthesis |
-| `/rpiv_plan` | opus | Architecture decisions |
-| `/rpiv_implement` | opus | Code generation |
-| `/rpiv_validate` | opus | Comprehensive review |
+| `/rpiv:start` | sonnet | Setup + context scan |
+| `/rpiv:discuss` | opus | Decision facilitation |
+| `/rpiv:research` | opus | Complex synthesis |
+| `/rpiv:plan` | opus | Architecture decisions |
+| `/rpiv:implement` | opus | Code generation |
+| `/rpiv:validate` | opus | Comprehensive review |
 | Reviewer agents | sonnet | Focused analysis |
 | Distiller agents | sonnet | Context compression |
 
@@ -487,7 +487,7 @@ Error: No active RPIV session found
 
 **Fix**:
 ```
-/rpiv_start "task description"
+/rpiv:start "task description"
 ```
 
 ### Plan Requirement Error
@@ -498,8 +498,8 @@ Error: Plan artifact not found
 
 **Fix**:
 ```
-/rpiv_plan
-# Then retry /rpiv_implement
+/rpiv:plan
+# Then retry /rpiv:implement
 ```
 
 ### Research Requirement Error
@@ -510,11 +510,11 @@ Error: Research artifact not found
 
 **Fix**:
 ```
-/rpiv_research
-# Then retry /rpiv_plan
+/rpiv:research
+# Then retry /rpiv:plan
 ```
 
 Or skip (not recommended):
 ```
-/rpiv_plan --no-research
+/rpiv:plan --no-research
 ```

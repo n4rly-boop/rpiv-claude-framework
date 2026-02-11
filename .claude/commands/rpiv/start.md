@@ -78,9 +78,9 @@ Use `obsidian` MCP to write `00_context.md` and `index.md`.
 
 ### Step 5: Determine Next Step
 
-- Open questions/ambiguous task → Suggest `/rpiv_discuss --topic "scope"`
-- Rich context found → Suggest `/rpiv_research`
-- Default → Suggest `/rpiv_research`
+- Open questions/ambiguous task → Suggest `/rpiv:discuss --topic "scope"`
+- Rich context found → Suggest `/rpiv:research`
+- Default → Suggest `/rpiv:research`
 
 ### Step 6: Report
 
@@ -98,7 +98,7 @@ Session ID: <id>, Context: <type>, Task: <description>
 
 ### Recommended Research Tier
 **<tier>** - <reason>
-Override with: /rpiv_research --micro, --focused, or --full
+Override with: /rpiv:research --micro, --focused, or --full
 
-Next: /rpiv_research
+Next: /rpiv:research
 ```

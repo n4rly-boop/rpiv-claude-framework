@@ -15,7 +15,7 @@ Complete reference for all RPIV framework agents.
 
 ## Reviewer Agents
 
-Reviewers are used during the `/rpiv_validate` phase to find issues in changed code.
+Reviewers are used during the `/rpiv:validate` phase to find issues in changed code.
 
 ### `code-reviewer`
 
@@ -453,14 +453,14 @@ Distillers are used to compress context and analyze codebases without pasting la
 
 ## Agent Usage in RPIV
 
-### Research Phase (`/rpiv_research`)
+### Research Phase (`/rpiv:research`)
 - `microservice-distiller` - Black-box docs for nested repos
 - `codebase-locator` - Find relevant files
 - `codebase-pattern-finder` - Find similar implementations
 - `repo-doc-distiller` - Internal docs (if inside microservice)
 - `codebase-analyzer` - Analyze specific components
 
-### Validation Phase (`/rpiv_validate`)
+### Validation Phase (`/rpiv:validate`)
 
 **Pass 1** (always):
 - `code-reviewer` - General code review

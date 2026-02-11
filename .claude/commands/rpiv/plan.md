@@ -12,7 +12,7 @@ Create implementation plan based on research. Present understanding first, confi
 ```
 LATEST_RESEARCH = latest 1?_research.md in session
 IF empty AND --no-research NOT provided:
-    REFUSE: "Research artifact not found. Run /rpiv_research first, or use /rpiv_plan --no-research."
+    REFUSE: "Research artifact not found. Run /rpiv:research first, or use /rpiv:plan --no-research."
 ```
 
 ## Process
@@ -143,5 +143,5 @@ Plan Summary: Phases: N, Files affected: N, Risk level: <level>
 Key Phases: <numbered list>
 Top Risks: <list>
 
-Next: /rpiv_implement
+Next: /rpiv:implement
 ```
