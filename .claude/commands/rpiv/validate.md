@@ -27,11 +27,15 @@ Run two-pass validation pipeline on implementation with **smart scoping**.
 
 ## Process
 
-### Step 1: Load Context
+### Step 1: Load Context & Knowledge
 
 1. Find active session from `$VAULT_BASE/<repo_name>/sessions/`
 2. Read latest implementation (`3?_implementation.md`) and plan (`2?_plan.md`)
-3. Check for `--fast` or `--full` flags
+3. Load knowledge for compliance checking:
+   - `$VAULT_BASE/<repo_name>/knowledge/conventions/main.md` → rules to validate against
+   - `$VAULT_BASE/<repo_name>/knowledge/patterns/main.md` → expected patterns to verify adherence
+   - Any topic-specific knowledge files referenced in the plan
+4. Check for `--fast` or `--full` flags
 
 ### Step 2: Discover Changed Files & Classify Change Type
 
@@ -48,7 +52,7 @@ Classify using the change-type table above. Store `change_type` and `pass2_agent
 
 1. `/tooling check` — capture full output
 2. `/tooling test` — capture full output
-3. Spawn `code-reviewer` agent on changed files
+3. Spawn `code-reviewer` agent on changed files — include loaded conventions in the prompt so the reviewer checks convention compliance (naming, structure, error handling, import order)
 
 **Collect files with issues** from all three sources. **Determine Pass 2 trigger:**
 
@@ -60,13 +64,13 @@ Classify using the change-type table above. Store `change_type` and `pass2_agent
 
 ### Step 4: Pass 2 — Deep Multi-Agent Analysis (if triggered)
 
-Launch selected agents **in parallel**, passing only `files_to_review`:
+Launch selected agents **in parallel**, passing `files_to_review` and relevant knowledge context:
 
 ```
-IF "defensive-reviewer" in agents: Task(subagent_type: "defensive-reviewer", ...)
-IF "integration-reviewer" in agents: Task(subagent_type: "integration-reviewer", ...)
-IF "security-reviewer" in agents: Task(subagent_type: "security-reviewer", ...)
-IF "logic-reviewer" in agents: Task(subagent_type: "logic-reviewer", prompt includes $LATEST_PLAN path)
+IF "defensive-reviewer" in agents: Task(subagent_type: "defensive-reviewer", prompt includes known anti-patterns and error handling conventions)
+IF "integration-reviewer" in agents: Task(subagent_type: "integration-reviewer", prompt includes API conventions and integration patterns)
+IF "security-reviewer" in agents: Task(subagent_type: "security-reviewer", prompt includes security conventions and known pitfalls)
+IF "logic-reviewer" in agents: Task(subagent_type: "logic-reviewer", prompt includes $LATEST_PLAN path and business logic patterns)
 ```
 
 Collect results, deduplicate issues (same `file:line`), aggregate by severity.
@@ -105,6 +109,11 @@ Version: find existing `4?_validation.md`, increment. Write via `obsidian` MCP.
 
 ## Pass 2 Details (if ran)
 [For each agent: focus area, critical/warning/suggestion tables with file:line]
+
+## Convention Compliance
+| Convention | Status | Notes |
+|------------|--------|-------|
+[Check changed files against loaded conventions. Flag violations as issues.]
 
 ## Success Criteria Check
 [From plan: checkbox list of criteria with VERIFIED/NOT VERIFIED]

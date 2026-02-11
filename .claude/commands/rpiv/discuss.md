@@ -9,11 +9,12 @@ Facilitate structured discussion and record decisions to vault. Focus on capturi
 
 ## Process
 
-### Step 1: Load Context
+### Step 1: Load Context & Knowledge
 
 1. Find active session
 2. Determine discussion context: `--after` flag → specified phase; else auto-detect from latest artifact (check 4X→3X→2X→1X→00)
 3. Read: latest artifact from detected phase, `00_context.md`, any previous discussions (`DXX_*.md`)
+4. For approach/design/review discussions: load relevant knowledge from `$VAULT_BASE/<repo_name>/knowledge/` — existing patterns and conventions inform what options are viable and what constraints apply
 
 ### Step 2: Present Summary (max 20 lines)
 
@@ -26,6 +27,10 @@ Facilitate structured discussion and record decisions to vault. Focus on capturi
 
 ### Decision Points / Open Questions
 - <from research/plan>
+
+### Relevant Knowledge (if applicable)
+- Patterns: <existing patterns that relate to the decision>
+- Conventions: <constraints from conventions that affect options>
 ```
 
 ### Step 3: Facilitate Discussion (MANDATORY — the entire point of this command)

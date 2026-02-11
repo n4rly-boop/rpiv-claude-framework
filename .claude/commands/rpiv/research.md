@@ -17,12 +17,16 @@ Conduct research for an RPIV session using distiller agents. Produces compressed
 
 ## Process
 
-### Step 1: Load Context & Determine Tier
+### Step 1: Load Context, Existing Knowledge & Determine Tier
 
 1. Find active session, read `00_context.md` for task, context type, relevant files, recommended tier
-2. Determine tier: explicit flag (`--micro/--focused/--full`) → recommended from context → `full` (default)
-3. If using recommended tier, inform user with override instructions
-4. If `00_context.md` has "Relevant Files" entries, skip codebase-locator (inform user)
+2. Load existing knowledge from `$VAULT_BASE/<repo_name>/knowledge/`:
+   - Check what already exists (conventions, patterns, service docs, microservice docs)
+   - Skip re-researching components with up-to-date knowledge artifacts — reference them instead
+   - Note knowledge gaps relevant to the task (these become research priorities)
+3. Determine tier: explicit flag (`--micro/--focused/--full`) → recommended from context → `full` (default)
+4. If using recommended tier, inform user with override instructions
+5. If `00_context.md` has "Relevant Files" entries, skip codebase-locator (inform user)
 
 ### Step 2: Execute Research by Tier
 
@@ -60,6 +64,8 @@ Spawn `codebase-analyzer` on specific paths from context:
 
 Wait for all agents. Read outputs. Synthesize into research digest:
 - Key findings (max 50 lines), file references (paths only), patterns, risks, open questions
+- Cross-reference agent findings with existing knowledge — note confirmations, contradictions, and new discoveries
+- If agents found patterns or conventions not yet in knowledge, flag them as candidates for `/extract_conventions`
 
 ### Step 4: Write Research Artifact
 
