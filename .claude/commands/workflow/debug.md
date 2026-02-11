@@ -8,12 +8,12 @@ Investigate problems by examining logs, application state, and git history. **Re
 
 ## Initial Response
 
-Ask the user:
+Use `AskUserQuestion` to ask the user — **do NOT fabricate their answers**:
 - What were you trying to test/implement?
 - What went wrong? Any error messages?
 - When did it last work?
 
-If a plan/ticket file was provided, read it first for context.
+If a plan/ticket file was provided, read it first for context. Wait for actual user response before starting investigation.
 
 ## Investigation Areas
 

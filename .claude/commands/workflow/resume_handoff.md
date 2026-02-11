@@ -41,11 +41,11 @@ Use `obsidian` MCP. Repo name: `basename $(git rev-parse --show-toplevel)`
 Shall I proceed with [action 1], or adjust the approach?
 ```
 
-Get user confirmation before proceeding.
+**NEVER fabricate confirmation.** Use `AskUserQuestion` and wait for actual response before proceeding. Do NOT assume the user agrees.
 
 ### Step 3: Create Action Plan
 
-Convert action items to TodoWrite task list. Prioritize by dependencies and handoff guidance. Present and confirm.
+Convert action items to TodoWrite task list. Prioritize by dependencies and handoff guidance. Present and get user confirmation via `AskUserQuestion` before starting work.
 
 ### Step 4: Begin Implementation
 

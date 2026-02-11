@@ -37,9 +37,9 @@ Summarize what was read — no analysis yet:
 
 ### Step 3: Confirm with User (MANDATORY — never skip)
 
-Use `AskUserQuestion`: "Is this understanding correct?" → Yes / Partially / No
+**NEVER fabricate the user's response.** You MUST call `AskUserQuestion` with "Is this understanding correct?" and options: Yes / Partially / No. Wait for the real answer. Do NOT assume "Yes" and proceed.
 
-Incorporate corrections before proceeding.
+Incorporate corrections before proceeding. Do NOT proceed to Step 4 until you have the user's actual response.
 
 ### Step 4: Analyze & Design
 
