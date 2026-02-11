@@ -69,11 +69,12 @@ Generate project-specific tooling skill.
 
 1. **Detect tooling**: Check Makefile targets, package.json scripts, pyproject.toml tools
 2. **Determine commands**: Poetry/Pipenv prefix for Python, npm scripts for Node.js, make targets for Makefile projects
-3. **Present to user** (MANDATORY confirmation via `AskUserQuestion`):
+3. **Present to user** (MANDATORY — use `AskUserQuestion`):
    - Show detected check/test/format commands with detection basis
    - Options: Accept (recommended), Customize, Skip (use auto-detection)
-4. **If accepted/customized**: Write `.claude/skills/tooling/SKILL.md` with configured commands
-5. **If skipped**: No project-specific tooling skill created
+   - **NEVER fabricate the user's choice. Wait for actual response before proceeding.**
+4. **If user chose Accept/Customize**: Write `.claude/skills/tooling/SKILL.md` with configured commands
+5. **If user chose Skip**: No project-specific tooling skill created
 
 ## Final Output
 

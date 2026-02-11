@@ -44,12 +44,16 @@ Spawn `codebase-locator` agent: find top 10 relevant files (paths only, no analy
 
 Task type keywords: fix/bug/patch → bug_fix, update/change/modify → simple, add/implement/create → feature, refactor/restructure → refactor, architecture/migrate/integrate → architectural.
 
-### Step 3: Interactive Clarification
+### Step 3: Interactive Clarification (MANDATORY when applicable)
 
-Use `AskUserQuestion` if:
-- Related sessions found → "Build on previous work?"
-- Conventions/patterns found → "Apply these constraints?"
-- Task is ambiguous → Targeted questions about scope/approach
+**NEVER fabricate user answers.** If there are questions to ask, you MUST use `AskUserQuestion` and wait for real responses. Do NOT fill in the "User Clarifications" table yourself.
+
+Use `AskUserQuestion` when ANY of these are true:
+- Related sessions found → Ask: "Build on previous work?"
+- Conventions/patterns found → Ask: "Apply these constraints?"
+- Task is ambiguous → Ask targeted questions about scope/approach
+
+If none of these conditions apply, write "No clarifications needed" in the artifact. Do NOT invent question/answer pairs.
 
 ### Step 4: Create Session Structure
 
@@ -59,7 +63,7 @@ Use `obsidian` MCP to write `00_context.md` and `index.md`.
 
 **00_context.md** body sections:
 - Task description
-- User Clarifications (table or "No clarifications - using defaults")
+- User Clarifications (from Step 3 responses, or "No clarifications needed")
 - Repository Context (repo, branch, commit, context type)
 - Detected Microservices (if root monorepo)
 - Related Knowledge (sessions, conventions, patterns from vault scan)

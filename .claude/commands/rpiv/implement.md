@@ -51,7 +51,7 @@ Version: find existing `3?_implementation.md`, increment (start at `30`). Write 
    - Execute manual tests from plan
    - Fix failures before proceeding
 5. Update tracking: mark completed items in plan, update progress
-6. If plan mismatch found, present options: A) adapt (document deviation), B) update plan first, C) ask for guidance
+6. If plan mismatch found, use `AskUserQuestion` with options: A) adapt (document deviation), B) update plan first, C) ask for guidance. **NEVER choose for the user.**
 
 ### Step 4: Phase Completion Protocol
 
@@ -59,7 +59,8 @@ After each phase, report:
 - Changes made (file:lines format)
 - Validation results (tooling check, test, manual)
 - Deviations from plan
-- Ask: "Proceed to Phase N+1?"
+
+Then use `AskUserQuestion`: "Proceed to Phase N+1?" **Wait for actual confirmation. Do NOT auto-proceed.**
 
 ### Step 5: Finalize Implementation
 

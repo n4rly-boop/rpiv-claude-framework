@@ -28,12 +28,16 @@ Facilitate structured discussion and record decisions to vault. Focus on capturi
 - <from research/plan>
 ```
 
-### Step 3: Facilitate Discussion
+### Step 3: Facilitate Discussion (MANDATORY — the entire point of this command)
+
+**NEVER fabricate user responses.** This command exists to capture REAL user decisions. You MUST use `AskUserQuestion` and wait for actual responses before writing the artifact.
 
 Use `AskUserQuestion` to:
 1. Present options (if applicable): labeled approaches with 1-line descriptions
 2. Ask clarifying questions: constraints, priorities, preferences
 3. Confirm understanding: summarize decisions, check for gaps
+
+The "Decision", "Reasoning", and "Options Considered" sections in the artifact MUST reflect what the user actually said, not what you think they would say.
 
 ### Step 4: Write Discussion Artifact
 
