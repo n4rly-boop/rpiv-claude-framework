@@ -11,57 +11,23 @@ Validate and repair Obsidian vault structure for RPIV framework.
 
 ### Step 1: Determine Vault Path
 
-```bash
-REPO_NAME=$(basename $(git rev-parse --show-toplevel))
-VAULT_BASE=${VAULT_BASE:-$HOME/context_vault}
-VAULT_PATH="$VAULT_BASE/$REPO_NAME"
-```
-
-Report:
-```
-Vault Maintenance Starting
-==========================
-Repo: $REPO_NAME
-Vault: $VAULT_PATH
-Mode: <audit|check|fix>
-```
+Repo: `basename $(git rev-parse --show-toplevel)`. Vault: `$VAULT_BASE/$REPO_NAME`. Report mode: audit|check|fix.
 
 ### Step 2: Validate Structure
 
-Use `obsidian` MCP to check directory structure:
+**Required dirs**: `sessions/`, `knowledge/`, `knowledge/microservices/`, `knowledge/services/`, `knowledge/conventions/`, `knowledge/patterns/`.
+**Optional dirs**: `handoffs/`, `research/`.
 
-**Required directories:**
-- `sessions/`
-- `knowledge/`
-- `knowledge/microservices/`
-- `knowledge/services/`
-- `knowledge/conventions/`
-- `knowledge/patterns/`
-
-**Optional directories:**
-- `handoffs/`
-- `research/`
-
-For each missing required directory, record issue:
-```
-CRITICAL | MISSING_DIR | <path> | Required directory missing
-```
+Missing required → `CRITICAL | MISSING_DIR`.
 
 ### Step 3: Validate Sessions
 
-For each session folder in `sessions/`:
+For each session in `sessions/`:
 
-#### 3.1 Session Name Validation
-Pattern: `^\d{8}-\d{6}-[a-z0-9-]+$`
+**3.1 Name**: Must match `^\d{8}-\d{6}-[a-z0-9-]+$` → else `WARNING | INVALID_SESSION_NAME`
 
-If invalid:
-```
-WARNING | INVALID_SESSION_NAME | <session> | Doesn't match YYYYMMDD-HHMMSS-description pattern
-```
+**3.2 Artifacts**: Valid patterns:
 
-#### 3.2 Artifact Validation
-
-**Valid patterns:**
 | Regex | Type |
 |-------|------|
 | `^00_context\.md$` | Context |
@@ -73,195 +39,44 @@ WARNING | INVALID_SESSION_NAME | <session> | Doesn't match YYYYMMDD-HHMMSS-descr
 | `^50_session_summary\.md$` | Summary |
 | `^index\.md$` | Index |
 
-For non-matching files:
-```
-WARNING | INVALID_ARTIFACT_NAME | <session>/<file> | Doesn't match artifact patterns
-```
+Non-matching → `WARNING | INVALID_ARTIFACT_NAME`
 
-#### 3.3 Frontmatter Validation
+**3.3 Frontmatter**: Required fields: `repo` (match current), `scope`, `session` (match folder), `type`, `created`, `updated`. Missing frontmatter → `CRITICAL`. Missing/stale fields → `WARNING`.
 
-Read each artifact and check frontmatter:
-
-**Required fields:**
-- `repo` (must match current repo)
-- `scope` (root|microservice|service)
-- `session` (must match session folder)
-- `type` (context|discussion|research|plan|implementation|validation|index)
-- `created` (ISO8601)
-- `updated` (ISO8601)
-
-For missing frontmatter:
-```
-CRITICAL | MISSING_FRONTMATTER | <path> | No YAML frontmatter found
-```
-
-For missing fields:
-```
-WARNING | MISSING_FIELD | <path> | Missing: <field>
-```
-
-For mismatched values:
-```
-WARNING | STALE_FIELD | <path> | <field> is '<value>' but should be '<expected>'
-```
-
-#### 3.4 Index Consistency
-
-Read `index.md` and check:
-1. All artifacts in folder are linked
-2. All linked artifacts exist
-3. Status matches (pending vs exists)
-
-Issues:
-```
-WARNING | MISSING_ARTIFACT_LINK | <session>/index.md | <artifact> not in index
-WARNING | DEAD_ARTIFACT_LINK | <session>/index.md | Links to non-existent <artifact>
-WARNING | STALE_STATUS | <session>/index.md | <artifact> status is 'pending' but file exists
-```
+**3.4 Index consistency**: All artifacts linked, all links exist, status matches reality. Issues: `MISSING_ARTIFACT_LINK`, `DEAD_ARTIFACT_LINK`, `STALE_STATUS`.
 
 ### Step 4: Validate Knowledge (skip if --check)
 
-For each subdirectory in `knowledge/`:
-
-1. Check file naming: `^[a-z0-9-]+\.md$`
-2. Check for index.md
-3. Validate frontmatter
-
-Issues:
-```
-INFO | INVALID_KNOWLEDGE_NAME | <path> | Name should be lowercase-with-hyphens.md
-INFO | MISSING_INDEX | <path>/ | No index.md in directory
-WARNING | MISSING_FRONTMATTER | <path> | No YAML frontmatter
-```
+Check naming (`^[a-z0-9-]+\.md$`), index.md presence, frontmatter.
 
 ### Step 5: Validate Links (skip if --check)
 
-For each markdown file, extract links with pattern: `\[.*?\]\((\.{1,2}/[^)]+)\)`
+Extract relative links, resolve targets, check existence. → `BROKEN_LINK` or `ABSOLUTE_LINK`.
 
-For each relative link:
-1. Resolve target path
-2. Check if target exists
+### Step 6: Health Score
 
-Issues:
-```
-WARNING | BROKEN_LINK | <file> | Link to <target> - file doesn't exist
-INFO | ABSOLUTE_LINK | <file> | Uses absolute path, should be relative
-```
-
-### Step 6: Calculate Health Score
-
-```
-Base: 100 points
-CRITICAL: -20 points each
-WARNING: -5 points each
-INFO: -1 point each
-
-Minimum: 0
-```
+Base 100. CRITICAL: -20, WARNING: -5, INFO: -1. Min: 0.
 
 ### Step 7: Generate Report
 
-```markdown
-## Vault Audit Report
-
-**Vault**: $VAULT_PATH
-**Date**: <iso8601>
-**Mode**: <audit|check|fix>
-
-### Summary
-
-| Severity | Count |
-|----------|-------|
-| CRITICAL | N |
-| WARNING | N |
-| INFO | N |
-
-**Health Score**: X/100
-
-### Critical Issues
-
-| Issue | Path | Description |
-|-------|------|-------------|
-<list all CRITICAL issues>
-
-### Warnings
-
-| Issue | Path | Description |
-|-------|------|-------------|
-<list all WARNING issues, max 20>
-
-### Info
-
-<count only, or list if --verbose>
-
-### Recommended Actions
-
-<prioritized list of fixes>
-```
+Summary table (severity × count), health score, critical issues table, warnings table (max 20), recommended actions.
 
 ### Step 8: Fix Mode (if --fix)
 
-For each issue in priority order (CRITICAL first):
-
-```
-## Fix: <ISSUE_TYPE>
-
-**Path**: <path>
-**Issue**: <description>
-**Proposed Fix**: <what will be done>
-
-Apply this fix?
-```
-
-Use `AskUserQuestion` with options:
-- "Yes, apply this fix"
-- "No, skip this fix"
-- "Skip all remaining fixes"
-
-**Fix implementations:**
+For each issue (CRITICAL first), present fix proposal via `AskUserQuestion`: "Yes" / "No, skip" / "Skip all remaining".
 
 | Issue | Fix |
 |-------|-----|
-| MISSING_DIR | `obsidian.write_note` to create directory (write empty index.md) |
-| MISSING_FRONTMATTER | Add frontmatter template to file |
-| MISSING_FIELD | Add field with inferred/default value |
-| STALE_FIELD | Update field to correct value |
-| MISSING_ARTIFACT_LINK | Append link to index.md Artifacts section |
-| DEAD_ARTIFACT_LINK | Ask: remove link or update target? |
-| INVALID_SESSION_NAME | Ask: rename folder? (use MCP move) |
-| INVALID_ARTIFACT_NAME | Ask: rename file or ignore? |
-| BROKEN_LINK | Ask: remove link or update target? |
+| MISSING_DIR | Write empty index.md to create dir |
+| MISSING_FRONTMATTER | Add template |
+| MISSING/STALE_FIELD | Add/update field |
+| MISSING_ARTIFACT_LINK | Append to index |
+| DEAD_ARTIFACT_LINK | Ask: remove or update? |
+| INVALID_NAME | Ask: rename? |
+| BROKEN_LINK | Ask: remove or update? |
 
-**Never auto-apply:**
-- File/folder deletions
-- Content modifications (beyond frontmatter)
-- Renames (always ask first)
+**Never auto-apply**: deletions, content modifications (beyond frontmatter), renames.
 
 ### Step 9: Final Report
 
-```markdown
-## Vault Maintenance Complete
-
-**Mode**: <mode>
-**Duration**: <time>
-
-### Changes Applied
-
-| Action | Path | Result |
-|--------|------|--------|
-<list of changes made>
-
-### Remaining Issues
-
-| Severity | Before | After |
-|----------|--------|-------|
-| CRITICAL | N | N |
-| WARNING | N | N |
-| INFO | N | N |
-
-**Health Score**: X/100 -> Y/100
-
-<next steps if issues remain>
-```
-
-Without `--fix`, never modify anything. Never delete files or folders without explicit per-item approval. Only modify YAML frontmatter, never body content. Always confirm renames.
+Changes applied table, before/after issue counts, health score change. Without `--fix`, never modify anything.

@@ -4,148 +4,60 @@ description: Debug issues by investigating logs, database state, and git history
 
 # Debug
 
-You are tasked with helping debug issues during manual testing or implementation. This command allows you to investigate problems by examining logs, application state, and git history without editing files.
+Investigate problems by examining logs, application state, and git history. **Read-only — do not edit files.**
 
 ## Initial Response
 
-When invoked WITH a plan/ticket file:
-```
-I'll help debug issues with [file name]. Let me understand the current state.
-
-What specific problem are you encountering?
+Ask the user:
 - What were you trying to test/implement?
-- What went wrong?
-- Any error messages?
-
-I'll investigate logs, application state, and git history to help figure out what's happening.
-```
-
-When invoked WITHOUT parameters:
-```
-I'll help debug your current issue.
-
-Please describe what's going wrong:
-- What are you working on?
-- What specific problem occurred?
+- What went wrong? Any error messages?
 - When did it last work?
 
-I can investigate logs, application state, and recent changes to help identify the issue.
-```
+If a plan/ticket file was provided, read it first for context.
 
 ## Investigation Areas
 
-### Logs
-- Application logs (check common locations: `logs/`, `./log/`, `/var/log/`)
-- Framework-specific logs
-- Error output from recent commands
+| Area | What to Check |
+|------|---------------|
+| Logs | App logs (`logs/`, `./log/`, `/var/log/`), framework logs, error output |
+| App State | Database, cache, config files, env vars |
+| Git State | Branch, recent commits, uncommitted changes, timing vs issue onset |
+| Services | Running processes, port availability, resource usage |
 
-### Application State
-- Database state (if applicable)
-- Cache state
-- Configuration files
-- Environment variables
-
-### Git State
-- Current branch, recent commits, uncommitted changes
-- When the issue started occurring relative to commits
-
-### Service/Process Status
-- Check if required services are running
-- Port availability
-- Resource usage
-
-## Process Steps
+## Process
 
 ### Step 1: Understand the Problem
+1. Read any provided context (plan/ticket), note expected vs actual behavior
+2. Quick state check: git branch, recent commits, uncommitted changes
 
-After the user describes the issue:
+### Step 2: Investigate (Parallel Agents)
 
-1. **Read any provided context** (plan or ticket file):
-   - Understand what they're implementing/testing
-   - Note which phase or step they're on
-   - Identify expected vs actual behavior
+**Agent 1** (codebase-analyzer): Check logs — find log locations, search for errors/warnings/stack traces around problem timeframe.
 
-2. **Quick state check**:
-   - Current git branch and recent commits
-   - Any uncommitted changes
-   - When the issue started occurring
+**Agent 2** (codebase-analyzer): Check app state — database, configuration, stuck states or anomalies.
 
-### Step 2: Investigate the Issue
+**Agent 3** (Explore): Check git/file state — git status, recent commits (`git log --oneline -10`), uncommitted changes, expected files exist.
 
-Spawn parallel Task agents for efficient investigation:
-
-```
-Task 1 - Check Recent Logs:
-Find and analyze relevant logs for errors:
-1. Identify log locations for this project
-2. Search for errors, warnings, or issues around the problem timeframe
-3. Look for stack traces or repeated errors
-Return: Key errors/warnings with timestamps
-```
-
-```
-Task 2 - Application State:
-Check the current application state:
-1. Check database state if applicable
-2. Verify configuration is correct
-3. Check for stuck states or anomalies
-Return: Relevant findings
-```
-
-```
-Task 3 - Git and File State:
-Understand what changed recently:
-1. Check git status and current branch
-2. Look at recent commits: git log --oneline -10
-3. Check uncommitted changes: git diff
-4. Verify expected files exist
-Return: Git state and any file issues
-```
-
-### Step 3: Present Findings
-
-Based on the investigation, present a focused debug report:
+### Step 3: Present Debug Report
 
 ```markdown
 ## Debug Report
 
 ### What's Wrong
-[Clear statement of the issue based on evidence]
+[Clear statement based on evidence]
 
-### Evidence Found
-
-**From Logs**:
-- [Error/warning with timestamp]
-- [Pattern or repeated issue]
-
-**From Application State**:
-- [Finding from database/config/cache]
-
-**From Git/Files**:
-- [Recent changes that might be related]
-- [File state issues]
+### Evidence
+**Logs**: [errors/warnings with timestamps]
+**App State**: [DB/config/cache findings]
+**Git/Files**: [related recent changes, file issues]
 
 ### Root Cause
-[Most likely explanation based on evidence]
+[Most likely explanation]
 
 ### Next Steps
+1. **Try first**: [specific command/action]
+2. **If that fails**: [alternative approach]
 
-1. **Try This First**:
-   ```bash
-   [Specific command or action]
-   ```
-
-2. **If That Doesn't Work**:
-   - [Alternative approach]
-   - [Additional investigation]
-
-### Can't Access?
-Some issues might be outside my reach:
-- Browser console errors (F12 in browser)
-- External service internal state
-- System-level issues
-
-Would you like me to investigate something specific further?
+### Beyond Reach
+[Things user must check: browser console, external service state, system issues]
 ```
-
-This command is for investigation only. Do not edit files.

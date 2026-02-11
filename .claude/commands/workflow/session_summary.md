@@ -5,282 +5,58 @@ model: opus
 
 # Session Summary + Empirical Verification Playbook
 
-Create a single durable summary artifact for an RPIV session that answers:
-- What was done?
-- What changed?
-- How can the change be verified empirically (not tests/linting)?
+Create a durable summary artifact answering: What was done? What changed? How to verify empirically?
 
-## Definition of "How to test"
-This command MUST produce **manual / empirical verification steps**, not CI.
-Examples:
-- which API route to call
-- curl/httpie commands
-- expected response
-- observable side effects (logs, DB, cache, metrics)
+**"How to test" means MANUAL/EMPIRICAL verification** — API routes, curl commands, expected responses, observable side effects (logs, DB, cache, metrics). Not CI.
 
 ## Process
 
-### Step 1: Resolve repo + session
+### Step 1: Resolve Session
+
+Repo: `basename $(git rev-parse --show-toplevel)`. Session: `--session` arg or most recent in `$VAULT_BASE/$REPO_NAME/sessions/`. Baseline commit: from `00_context.md`, fallback `HEAD~1`, override via `--since`.
+
+### Step 2: Load Artifacts (best-effort)
+
+Read latest versioned artifacts: `00_context.md`, `index.md`, latest `1?_research.md`, `2?_plan.md`, `3?_implementation.md`, `4?_validation.md`. List extra files including previous versions.
+
+### Step 3: Summarize Code Changes
 
 ```bash
-REPO_ROOT=$(git rev-parse --show-toplevel)
-REPO_NAME=$(basename "$REPO_ROOT")
-```
-
-Session resolution:
-
-* If `--session` provided → use it
-* Else → use most recently modified folder under:
-  `$VAULT_BASE/$REPO_NAME/sessions/`
-
-Baseline commit:
-
-* Prefer commit recorded in `00_context.md`
-* Else fallback to `HEAD~1`
-* Overrideable via `--since`
-
-### Step 2: Load session artifacts (best-effort)
-
-Find and read latest versioned artifacts:
-```bash
-# Artifacts are versioned: 1X_research, 2X_plan, 3X_implementation, 4X_validation
-LATEST_RESEARCH=$(ls -1 $SESSION_PATH/1?_research.md 2>/dev/null | sort -V | tail -1)
-LATEST_PLAN=$(ls -1 $SESSION_PATH/2?_plan.md 2>/dev/null | sort -V | tail -1)
-LATEST_IMPL=$(ls -1 $SESSION_PATH/3?_implementation.md 2>/dev/null | sort -V | tail -1)
-LATEST_VALID=$(ls -1 $SESSION_PATH/4?_validation.md 2>/dev/null | sort -V | tail -1)
-```
-
-Attempt to read:
-* `00_context.md` (not versioned)
-* `index.md`
-* `$LATEST_RESEARCH`
-* `$LATEST_PLAN`
-* `$LATEST_IMPL`
-* `$LATEST_VALID`
-
-Also list any extra files in the session directory (including previous artifact versions).
-
-### Step 3: Summarize code changes
-
-Compute:
-
-```bash
-git diff --name-only <BASE_REF>..HEAD
-git diff --stat <BASE_REF>..HEAD
-git log --oneline <BASE_REF>..HEAD
+git diff --name-only <BASE>..HEAD
+git diff --stat <BASE>..HEAD
+git log --oneline <BASE>..HEAD
 git status --porcelain
 ```
 
-### Step 4: Build empirical verification playbook
+### Step 4: Build Verification Playbook
 
-Derive manual verification steps using this priority:
+Priority order for deriving manual verification steps:
 
-#### A) Explicit acceptance criteria (highest priority)
+**A) Explicit acceptance criteria** (highest) — reuse verbatim from plan/impl/validation artifacts
+**B) Infer from code** — scan changed files for route definitions (FastAPI, Express, etc.), extract METHOD + PATH + request model + auth deps
+**C) OpenAPI discovery** — fetch `/openapi.json` if service runs locally, match changed routes
+**D) Construct manual script** — per feature: route, curl command, expected response, negative case, side effects + how to observe
 
-Extract from:
+### Step 5: Build Future Work Section
 
-* `$LATEST_PLAN` → "Acceptance Criteria", "Manual verification"
-* `$LATEST_IMPL` → routes, flags, handlers
-* `$LATEST_VALID` → manual checks
+Analyze implementation for: integration guidance, key files/patterns to reference, known limitations, recommended next steps, stable knowledge updates.
 
-Reuse verbatim if present.
+### Step 6: Write Summary Artifact
 
-#### B) Infer from FastAPI code (if A insufficient)
+Write `50_session_summary.md` via `obsidian` MCP.
 
-If Python/FastAPI:
+**Frontmatter**: `repo`, `session`, `baseline_ref`, `target_ref: HEAD`, `type: session_summary`, `created`.
 
-* Find changed files containing:
+**Body sections:**
+- **Task**: from context
+- **Status**: Research/Plan/Implementation/Validation status + verdict
+- **What changed**: commits, files, stats
+- **Key decisions**: from plan/implementation
+- **Empirical verification playbook**: Preconditions (env vars, auth), service start command, per-feature verification (route, curl, expected response, side effects, negative case)
+- **Future Work & Integration**: context for next session, integration points, known limitations/TODOs, recommended next steps, stable knowledge updates
+- **Validation notes**: from latest validation
+- **Links**: to all session artifacts (note versioning scheme)
 
-  * `FastAPI(`, `APIRouter(`, `@router.`, `add_api_route`
-* Extract:
+### Step 7: Update Index & Report
 
-  * METHOD + PATH
-  * request model (if named)
-  * auth dependencies (best-effort)
-
-#### C) OpenAPI discovery (best-effort)
-
-If service can run locally:
-
-* Fetch `/openapi.json`
-* Match changed routes
-
-#### D) Construct manual script
-
-For each feature/endpoint:
-
-* route
-* example curl
-* expected response
-* negative case
-* side effects + how to observe
-
-### E) Build Future Work section
-
-Analyze the implementation to identify:
-
-* **Integration guidance**: How future work can build upon this
-* **Key files and patterns**: What files/functions to reference
-* **Known limitations**: What wasn't implemented and why
-* **Recommended next steps**: Logical extensions or improvements
-* **Stable knowledge updates**: What was added to `knowledge/` directory
-
-This section helps future sessions (or other developers) understand:
-- How to extend the feature
-- What patterns to follow
-- What technical debt exists
-- What the natural next steps are
-
-### Step 5: Write summary artifact
-
-Write:
-`$VAULT_BASE/$REPO_NAME/sessions/<session_id>/50_session_summary.md`
-
-Template:
-
-```markdown
----
-repo: <repo_name>
-session: <session_id>
-baseline_ref: <BASE_REF>
-target_ref: HEAD
-type: session_summary
-created: <iso8601>
----
-
-# Session Summary: <session_id>
-
-## Task
-<from 00_context.md>
-
-## Status
-- Research: <done/partial/unknown>
-- Plan: <done/partial/unknown>
-- Implementation: <done/partial/unknown>
-- Validation: <done/partial/unknown>
-- Verdict: <ready / needs work>
-
-## What changed
-**Commits**
-- <git log>
-
-**Files**
-- <git diff --name-only>
-
-**Stats**
-- <git diff --stat>
-
-## Key decisions
-- <from plan / implementation>
-
-## Empirical verification playbook
-
-### Preconditions
-- Environment: <local/dev>
-- Required env vars:
-  - <KEY>=<value or placeholder>
-- Auth:
-  - <how to obtain token or placeholder>
-
-### Start the service
-```bash
-<command or "not specified">
-```
-
-### Verify behavior
-
-#### 1) <Feature or endpoint name>
-
-**Route**
-
-* <METHOD> <PATH>
-
-**Request**
-
-```bash
-curl -i -X <METHOD> "http://localhost:<port><PATH>" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <TOKEN>" \
-  -d '<JSON>'
-```
-
-**Expected**
-
-* Status: <code>
-* Response: <key fields>
-* Side effects: <what should change>
-
-**Observe side effects**
-
-* Logs: <pattern or unknown>
-* DB: <query or unknown>
-* Cache / events / metrics: <if applicable>
-
-**Negative case**
-
-```bash
-<curl with invalid input or missing auth>
-```
-
-Expected: <status + error>
-
-## Future Work & Integration
-
-### How to Build Upon This Work
-
-**Context for Next Session**:
-* What was implemented: <brief summary>
-* Key files modified: <list>
-* Patterns established: <any new patterns to follow>
-
-**Integration Points**:
-* To extend this feature:
-  - Relevant files: <paths>
-  - Key functions/classes: <names>
-  - Convention to follow: <pattern reference>
-
-* To integrate with other services:
-  - API contract: <reference to endpoint/schema>
-  - Data models: <relevant models>
-  - Shared utilities: <if any>
-
-**Known Limitations & TODOs**:
-- [ ] <limitation 1 - e.g., "No pagination support yet">
-- [ ] <limitation 2 - e.g., "Error handling for edge case X">
-- [ ] <improvement idea>
-
-**Recommended Next Steps**:
-1. <logical next feature or improvement>
-2. <technical debt to address>
-3. <optimization opportunity>
-
-### Stable Knowledge Updates
-
-**Created/Updated**:
-* `knowledge/patterns/<pattern>.md` - <if new pattern established>
-* `knowledge/conventions/<area>.md` - <if convention added>
-* `knowledge/services/<service>.md` - <if service documented>
-
-## Validation notes
-
-* <summary from $LATEST_VALID>
-
-## Links
-
-* [00_context.md](./00_context.md)
-* [$LATEST_RESEARCH](./$LATEST_RESEARCH)
-* [$LATEST_PLAN](./$LATEST_PLAN)
-* [$LATEST_IMPL](./$LATEST_IMPL)
-* [$LATEST_VALID](./$LATEST_VALID)
-
-**Note**: Artifacts are versioned (10, 11, 12... for research; 20, 21, 22... for plan; etc.). Links above point to latest versions. Previous iterations are preserved in the session folder.
-
-```
-
-### Step 6: Update index.md
-Add link to `50_session_summary.md`.
-
-### Step 7: Output
-Print:
-- path to summary
-- short digest (≤15 lines)
+Add link to `50_session_summary.md` in index. Print path + short digest (max 15 lines).

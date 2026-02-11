@@ -4,32 +4,11 @@ description: Create git commits with user approval and no Claude attribution
 
 # Commit Changes
 
-You are tasked with creating git commits for the changes made during this session.
+Create git commits for session changes. NEVER add co-author information, Claude attribution, or "Co-Authored-By" lines.
 
-## Process:
+## Process
 
-1. **Think about what changed:**
-   - Review the conversation history and understand what was accomplished
-   - Run `git status` to see current changes
-   - Run `git diff` to understand the modifications
-   - Consider whether changes should be one commit or multiple logical commits
-
-2. **Plan your commit(s):**
-   - Identify which files belong together
-   - Draft clear, descriptive commit messages
-   - Use imperative mood in commit messages
-   - Focus on why the changes were made, not just what
-   - Use the same format for commit messages as the repository's commit message format
-   - If anything is unclear, ask the user for clarification
-
-
-3. **Present your plan to the user:**
-   - List the files you plan to add for each commit
-   - Show the commit message(s) you'll use
-   - Ask: "I plan to create [N] commit(s) with these changes. Shall I proceed?"
-
-4. **Execute upon confirmation:**
-   - Use `git add` with specific files (never use `-A` or `.`)
-   - Create commits with your planned messages
-   - Show the result with `git log --oneline -n [number]`
-NEVER add co-author information, Claude attribution, "Generated with Claude" messages, or "Co-Authored-By" lines.
+1. **Assess changes**: Review conversation history, run `git status` + `git diff`, determine if one or multiple logical commits
+2. **Plan commits**: Group related files, draft clear imperative commit messages focusing on WHY. Match repo's existing commit message format. Ask user if unclear.
+3. **Present plan**: List files per commit + messages. Ask: "I plan to create N commit(s). Shall I proceed?"
+4. **Execute on confirmation**: `git add` specific files (never `-A` or `.`), create commits, show `git log --oneline -n N`
