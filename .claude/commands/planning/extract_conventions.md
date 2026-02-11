@@ -5,425 +5,78 @@ model: opus
 
 # Extract Conventions
 
-You are tasked with analyzing a codebase to extract and document all conventions, patterns, architecture decisions, and dependencies. This creates a persistent knowledge base for consistent development.
+Analyze codebase to extract and document conventions, patterns, architecture, and dependencies. Creates persistent knowledge base for consistent development.
 
 ## Output Location
 
-Use the `obsidian` MCP server to save artifacts. Determine repo name with: `basename $(git rev-parse --show-toplevel)`
+Use `obsidian` MCP. Repo name: `basename $(git rev-parse --show-toplevel)`
 
-All extracted documentation goes to `{repo_name}/knowledge/`:
 ```
 {repo_name}/knowledge/
-├── conventions/
-│   └── main.md         # Code style, naming, file structure
-├── patterns/
-│   └── main.md         # Common implementation patterns
-├── architecture.md     # Service boundaries, data flow, infrastructure
-└── dependencies.md     # Inter-repo deps, shared libs, external services
+├── conventions/main.md    # Code style, naming, file structure
+├── patterns/main.md       # Common implementation patterns
+├── architecture.md        # Service boundaries, data flow
+└── dependencies.md        # Inter-repo deps, shared libs, external services
 ```
 
 ## Process
 
 ### Phase 1: Initial Scan
 
-1. **Identify repository type and stack**:
-   - Language(s) and frameworks
-   - Build system (maven, gradle, npm, etc.)
-   - Package manager and dependency files
-   - CI/CD configuration
+1. **Stack**: Languages, frameworks, build system, package manager, CI/CD
+2. **Docs**: README, CONTRIBUTING, ADRs, OpenAPI/Swagger, proto/GraphQL schemas
+3. **Config**: Linter, formatter, editor, compiler configs
 
-2. **Find existing documentation**:
-   - README files at all levels
-   - CONTRIBUTING.md, STYLE_GUIDE.md, etc.
-   - ADRs (Architecture Decision Records)
-   - OpenAPI/Swagger specs
-   - Proto files, GraphQL schemas
+### Phase 2: Deep Analysis (Parallel Agents)
 
-3. **Scan configuration files**:
-   - Linter configs (.eslintrc, .pylintrc, checkstyle.xml, etc.)
-   - Formatter configs (prettier, black, spotless, etc.)
-   - Editor configs (.editorconfig)
-   - TypeScript/compiler configs
+**Agent 1: Code Style** (codebase-analyzer)
+- Variable/function/class naming, file/directory naming, import organization, comment styles, error handling, logging conventions
+- Extract 3-5 concrete examples per pattern
 
-### Phase 2: Deep Analysis (Parallel Sub-Agents)
+**Agent 2: Architecture** (codebase-analyzer)
+- Project structure, layer separation, DI patterns, config management, service boundaries
+- Map component relationships
 
-Spawn these sub-agents in parallel:
+**Agent 3: Patterns** (codebase-pattern-finder)
+- API endpoints, DB access, auth/authz, caching, async/messaging, testing
+- Extract reusable code snippets as templates
 
-**Agent 1: Code Style Analysis**
-```
-Analyze code style and naming conventions:
-- Variable/function/class naming patterns
-- File and directory naming conventions
-- Import organization and grouping
-- Comment styles and documentation patterns
-- Error handling patterns
-- Logging conventions
-Extract 3-5 concrete examples for each pattern found.
-```
-
-**Agent 2: Architecture Analysis**
-```
-Analyze architecture and structure:
-- Project structure and module organization
-- Layer separation (controllers, services, repositories, etc.)
-- Dependency injection patterns
-- Configuration management
-- Environment handling
-- Service boundaries and responsibilities
-Map the high-level architecture with component relationships.
-```
-
-**Agent 3: Pattern Analysis**
-```
-Find common implementation patterns:
-- API endpoint patterns (REST conventions, error responses)
-- Database access patterns (repositories, DAOs, ORMs)
-- Authentication/authorization patterns
-- Caching strategies
-- Async/messaging patterns
-- Testing patterns (unit, integration, e2e structure)
-Extract reusable code snippets as templates.
-```
-
-**Agent 4: Dependency Analysis**
-```
-Analyze dependencies and integrations:
-- Internal shared libraries (versions, purposes)
-- External service integrations (APIs, databases, queues)
-- Inter-repository dependencies
-- Deployment dependencies (infrastructure, secrets)
-- Version constraints and compatibility
-Create dependency map with version requirements.
-```
+**Agent 4: Dependencies** (codebase-analyzer)
+- Internal shared libs, external service integrations, inter-repo deps, deployment deps, version constraints
 
 ### Phase 3: Synthesis
 
-1. **Consolidate findings** from all agents
-2. **Resolve conflicts** - if patterns vary, document the variations with context
-3. **Identify gaps** - missing conventions that should be established
-4. **Create actionable guidelines** - not just descriptions, but "do this, not that"
+1. Consolidate findings, resolve conflicts (document variations with context)
+2. Identify gaps, create actionable "do this, not that" guidelines
 
 ### Phase 4: Write Documentation
 
-Use `obsidian` MCP to create/update each file in `{repo_name}/knowledge/`:
+Use `obsidian` MCP to create/update each file in `{repo_name}/knowledge/`.
 
-#### conventions.md Structure:
-```markdown
-# Code Conventions
+**conventions/main.md**: Language & Stack, Naming Conventions (files + code tables), Code Style (imports, error handling, logging), DO/DON'T quick reference table.
 
-> Auto-generated by /extract_conventions on YYYY-MM-DD
-> Source: [repo-name]
+**patterns/main.md**: API endpoint templates, error response format, data access patterns, testing patterns, common utilities.
 
-## Language & Stack
-- Primary: [language] [version]
-- Framework: [framework] [version]
-- Build: [build-system]
+**architecture.md**: System overview (ASCII diagram), module structure, data flow, service boundaries, configuration.
 
-## Naming Conventions
+**dependencies.md**: Internal deps table (library, version, purpose, owner), external services table (service, purpose, config key), inter-repo deps, version constraints.
 
-### Files & Directories
-| Type | Convention | Example |
-|------|------------|---------|
-| Components | PascalCase | `UserProfile.tsx` |
-| Utils | camelCase | `formatDate.ts` |
-| ... | ... | ... |
+**Incremental updates**: If knowledge already exists, read first, compare, highlight changes, preserve `<!-- manual -->` sections.
 
-### Code
-| Type | Convention | Example |
-|------|------------|---------|
-| Classes | PascalCase | `OrderService` |
-| Methods | camelCase | `calculateTotal()` |
-| Constants | SCREAMING_SNAKE | `MAX_RETRY_COUNT` |
-| ... | ... | ... |
+### Phase 5: Tooling Configuration
 
-## Code Style
+Generate project-specific tooling skill.
 
-### Imports
-[Order and grouping rules with example]
-
-### Error Handling
-[Pattern with example]
-
-### Logging
-[Format and levels with example]
-
-## DO / DON'T Quick Reference
-| DO | DON'T |
-|----|-------|
-| Use `Optional<T>` for nullable returns | Return null directly |
-| ... | ... |
-```
-
-#### patterns.md Structure:
-```markdown
-# Implementation Patterns
-
-> Auto-generated by /extract_conventions on YYYY-MM-DD
-
-## API Patterns
-
-### REST Endpoint Template
-\`\`\`[language]
-[actual code from codebase as template]
-\`\`\`
-
-### Error Response Format
-\`\`\`json
-{
-  "error": "string",
-  "code": "string",
-  "details": {}
-}
-\`\`\`
-
-## Data Access Patterns
-[Repository/DAO patterns with examples]
-
-## Testing Patterns
-[Unit test structure, mocking conventions]
-
-## Common Utilities
-[List of shared utilities and when to use them]
-```
-
-#### architecture.md Structure:
-```markdown
-# Architecture
-
-> Auto-generated by /extract_conventions on YYYY-MM-DD
-
-## System Overview
-[ASCII diagram or description of major components]
-
-## Module Structure
-```
-src/
-├── api/          # HTTP handlers
-├── domain/       # Business logic
-├── infra/        # External integrations
-└── shared/       # Cross-cutting concerns
-```
-
-## Data Flow
-[Request lifecycle, data transformation points]
-
-## Service Boundaries
-[What each service/module owns]
-
-## Configuration
-[How config is loaded, environment handling]
-```
-
-#### dependencies.md Structure:
-```markdown
-# Dependencies
-
-> Auto-generated by /extract_conventions on YYYY-MM-DD
-
-## Internal Dependencies
-| Library | Version | Purpose | Owner Repo |
-|---------|---------|---------|------------|
-| common-utils | 2.3.x | Shared utilities | platform/common |
-| ... | ... | ... | ... |
-
-## External Services
-| Service | Purpose | Config Key | Docs |
-|---------|---------|------------|------|
-| PostgreSQL | Primary DB | DATABASE_URL | [link] |
-| Redis | Caching | REDIS_URL | [link] |
-| ... | ... | ... | ... |
-
-## Inter-Repo Dependencies
-[Which repos depend on this, which this depends on]
-
-## Version Constraints
-[Compatibility notes, upgrade considerations]
-```
-
-## Incremental Updates
-
-If `{repo_name}/knowledge/` already exists in vault:
-1. Read existing documentation first
-2. Compare with current analysis
-3. Highlight what changed (new patterns, deprecated patterns)
-4. Update files preserving manual additions marked with `<!-- manual -->` comments
-
-### Phase 5: Tooling Configuration (MANDATORY)
-
-Generate a project-specific tooling skill for code quality commands.
-
-#### 5.1: Detect Tooling
-
-Analyze the project to detect available tooling:
-
-```bash
-# Check for config files
-ls -la Makefile package.json pyproject.toml Cargo.toml go.mod setup.py requirements.txt 2>/dev/null
-
-# If Makefile exists, check for targets
-grep -E '^(check|test|format|lint):' Makefile 2>/dev/null
-
-# If package.json exists, check for scripts
-cat package.json | grep -A 20 '"scripts"' 2>/dev/null
-
-# If pyproject.toml exists, check for tools
-cat pyproject.toml | grep -E '(ruff|black|mypy|pytest|flake8)' 2>/dev/null
-```
-
-#### 5.2: Determine Commands
-
-Based on detection, determine the three tooling commands:
-
-**For Python projects (pyproject.toml or setup.py):**
-- Check if Poetry (`poetry.lock` exists) → prefix with `poetry run`
-- Check if Pipenv (`Pipfile` exists) → prefix with `pipenv run`
-- Otherwise use direct commands
-
-**For Node.js projects (package.json):**
-- Use `npm run <script>` for defined scripts
-- Fall back to `npx <tool>` for missing scripts
-
-**For Makefile projects:**
-- Use `make <target>` if target exists
-
-#### 5.3: Present to User for Approval
-
-**MANDATORY: Always ask user to confirm before writing tooling skill.**
-
-Present detected tooling in this format:
-
-```markdown
-## Detected Project Tooling
-
-Based on analysis of your project configuration:
-
-| Operation | Detected Command |
-|-----------|------------------|
-| **check** | `<detected check command>` |
-| **test** | `<detected test command>` |
-| **format** | `<detected format command>` |
-
-**Detection basis:**
-- Found: <list of config files found>
-- Project type: <Python/Node.js/Rust/Go/etc.>
-- Package manager: <Poetry/npm/Cargo/etc.>
-
-### Options
-
-1. **Accept** - Create tooling skill with these commands
-2. **Customize** - Modify commands before creating
-3. **Skip** - Use framework defaults (auto-detection at runtime)
-
-Which would you like? [1/2/3]
-```
-
-Use AskUserQuestion tool:
-```
-Question: "How should we configure project tooling?"
-Options:
-  - "Accept detected commands" (Recommended)
-  - "Customize commands"
-  - "Skip - use auto-detection"
-```
-
-#### 5.4: Handle User Response
-
-**If "Accept":**
-- Proceed to write tooling skill with detected commands
-
-**If "Customize":**
-- Ask for each command:
-  ```
-  Current check command: `poetry run ruff check . && poetry run mypy .`
-  Enter custom check command (or press Enter to keep):
-  ```
-- Use AskUserQuestion for each operation
-
-**If "Skip":**
-- Do not create project-specific tooling skill
-- Project will use framework default auto-detection
-
-#### 5.5: Write Tooling Skill
-
-If user accepted or customized, create the skill:
-
-**Location:** `<project>/.claude/skills/tooling/SKILL.md`
-
-```markdown
----
-name: tooling
-description: Project-specific tooling for <repo-name>. Run check, test, or format commands configured for this codebase.
----
-
-# Tooling Skill (Project-Specific)
-
-> Generated by /extract_conventions on <date>
-> Overrides framework default auto-detection
-
-## Configured Commands
-
-| Operation | Command |
-|-----------|---------|
-| check | `<check_command>` |
-| test | `<test_command>` |
-| format | `<format_command>` |
-
-## Usage
-
-```
-/tooling check    # Run: <check_command>
-/tooling test     # Run: <test_command>
-/tooling format   # Run: <format_command>
-```
-
-## Execution
-
-### /tooling check
-
-Run the project's linting and type checking:
-
-```bash
-<check_command>
-```
-
-**On failure:** Fix reported issues, then re-run.
-
-### /tooling test
-
-Run the project's test suite:
-
-```bash
-<test_command>
-```
-
-**On failure:** Analyze test output, fix failing tests.
-
-### /tooling format
-
-Format code according to project standards:
-
-```bash
-<format_command>
-```
-
-## Notes
-
-- Edit commands above to customize
-- Delete this file to revert to framework auto-detection
-- Re-run `/extract_conventions` to regenerate
-```
-
-#### 5.6: Create Directory if Needed
-
-```bash
-mkdir -p .claude/skills/tooling
-```
-
-Then write the SKILL.md file.
+1. **Detect tooling**: Check Makefile targets, package.json scripts, pyproject.toml tools
+2. **Determine commands**: Poetry/Pipenv prefix for Python, npm scripts for Node.js, make targets for Makefile projects
+3. **Present to user** (MANDATORY confirmation via `AskUserQuestion`):
+   - Show detected check/test/format commands with detection basis
+   - Options: Accept (recommended), Customize, Skip (use auto-detection)
+4. **If accepted/customized**: Write `.claude/skills/tooling/SKILL.md` with configured commands
+5. **If skipped**: No project-specific tooling skill created
 
 ## Final Output
 
-After writing all files, provide a summary:
 ```
 ## Extraction Complete
 
@@ -432,16 +85,13 @@ Created/Updated:
 - {repo_name}/knowledge/patterns/main.md
 - {repo_name}/knowledge/architecture.md
 - {repo_name}/knowledge/dependencies.md
-- .claude/skills/tooling/SKILL.md (if user approved)
+- .claude/skills/tooling/SKILL.md (if approved)
 
-Tooling Configuration:
-- check: `<command>`
-- test: `<command>`
-- format: `<command>`
+Tooling: check: `<cmd>` | test: `<cmd>` | format: `<cmd>`
 
 Key Findings:
-- [Notable pattern or convention]
-- [Potential inconsistency found]
+- <notable pattern or convention>
+- <potential inconsistency found>
 
 Next: /rpiv_start to begin implementation with these conventions
 ```

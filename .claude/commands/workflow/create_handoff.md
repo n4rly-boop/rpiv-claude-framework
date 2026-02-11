@@ -4,82 +4,35 @@ description: Create handoff document for transferring work to another session
 
 # Create Handoff
 
-You are tasked with writing a handoff document to hand off your work to another agent in a new session. You will create a handoff document that is thorough, but also **concise**. The goal is to compact and summarize your context without losing any of the key details of what you're working on.
-
+Write a concise handoff document to transfer work context to another session. Goal: compact and summarize without losing key details.
 
 ## Process
-### 1. Filepath & Metadata
-Use the `obsidian` MCP server to save artifacts. Determine repo name with: `basename $(git rev-parse --show-toplevel)`
 
-Use the following information to understand how to create your document:
-    - create your file using `obsidian` MCP at `{repo_name}/handoffs/YYYY-MM-DD_HH-MM-SS_description.md`, where:
-        - YYYY-MM-DD is today's date
-        - HH-MM-SS is the hours, minutes and seconds based on the current time, in 24-hour format (i.e. use `13:00` for `1:00 pm`)
-        - description is a brief kebab-case description
-    - Example: `myrepo/handoffs/2025-01-08_13-55-22_create-context-compaction.md`
+### 1. Gather Metadata
 
-### 2. Handoff writing.
-using the above conventions, write your document. use the defined filepath, and the following YAML frontmatter pattern. Use the metadata gathered in step 1, Structure the document with YAML frontmatter followed by content:
+Repo name: `basename $(git rev-parse --show-toplevel)`. File path: `{repo_name}/handoffs/YYYY-MM-DD_HH-MM-SS_description.md` (kebab-case description, 24h time).
 
-Use the following template structure:
-```markdown
----
-date: [Current date and time with timezone in ISO format]
-git_commit: [Current commit hash]
-branch: [Current branch name]
-repository: [Repository name]
-topic: "[Feature/Task Name] Implementation Strategy"
-tags: [implementation, strategy, relevant-component-names]
-status: complete
-last_updated: [Current date in YYYY-MM-DD format]
-type: implementation_strategy
----
+### 2. Write Handoff
 
-# Handoff: {very concise description}
+Write via `obsidian` MCP with this structure:
 
-## Task(s)
-{description of the task(s) that you were working on, along with the status of each (completed, work in progress, planned/discussed). If you are working on an implementation plan, make sure to call out which phase you are on. Make sure to reference the plan document and/or research document(s) you are working from that were provided to you at the beginning of the session, if applicable.}
+**Frontmatter**: date (ISO), git_commit, branch, repository, topic, tags, status, last_updated, type: implementation_strategy.
 
-## Critical References
-{List any critical specification documents, architectural decisions, or design docs that must be followed. Include only 2-3 most important file paths. Leave blank if none.}
+**Body sections:**
+- **Task(s)**: Description + status (completed/WIP/planned). Reference plan/research documents if applicable. Note current phase.
+- **Critical References**: 2-3 most important spec/design docs (file paths). Leave blank if none.
+- **Recent Changes**: Code changes in `file:line` syntax.
+- **Learnings**: Patterns, root causes, important context for the next agent. Include explicit file paths.
+- **Artifacts**: Exhaustive list of produced/updated artifacts as file paths.
+- **Action Items & Next Steps**: Prioritized list based on task statuses.
+- **Other Notes**: Relevant codebase locations, documents, or other useful context.
 
-## Recent changes
-{describe recent changes made to the codebase that you made in line:file syntax}
+### 3. Report
 
-## Learnings
-{describe important things that you learned - e.g. patterns, root causes of bugs, or other important pieces of information someone that is picking up your work after you should know. consider listing explicit file paths.}
-
-## Artifacts
-{ an exhaustive list of artifacts you produced or updated as filepaths and/or file:line references - e.g. paths to feature documents, implementation plans, etc that should be read in order to resume your work.}
-
-## Action Items & Next Steps
-{ a list of action items and next steps for the next agent to accomplish based on your tasks and their statuses}
-
-## Other Notes
-{ other notes, references, or useful information - e.g. where relevant sections of the codebase are, where relevant documents are, or other important things you leanrned that you want to pass on but that don't fall into the above categories}
+Respond to user:
 ```
----
-
-### 3. Save the document
-
-Once this is completed, you should respond to the user with the template between <template_response></template_response> XML tags. do NOT include the tags in your response.
-
-<template_response>
 Handoff created and synced! You can resume from this handoff in a new session with the following command:
 
-```bash
-/resume_handoff path/to/handoff.md
+/resume_handoff {repo_name}/handoffs/YYYY-MM-DD_HH-MM-SS_description.md
 ```
-</template_response>
-
-for example (between <example_response></example_response> XML tags - do NOT include these tags in your actual response to the user)
-
-<example_response>
-Handoff created and synced! You can resume from this handoff in a new session with the following command:
-
-```bash
-/resume_handoff myrepo/handoffs/2025-01-08_13-44-55_create-context-compaction.md
-```
-(The path is relative to the obsidian vault root)
-</example_response>
-
+(Path relative to vault root)
