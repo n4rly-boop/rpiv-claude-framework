@@ -52,6 +52,7 @@ Discussion artifacts add: `topic: scope|approach|design|review|retrospective`
 ## RPIV Workflow
 
 **Flow:** Start → [Discuss] → Research → [Discuss] → Plan → Implement → Validate → Summarize
+**Auto:** Start → Research → Plan → Implement → Validate [→ Fix Cycle] → Summarize
 
 | Phase | Command | Artifacts | Key Rules |
 |-------|---------|-----------|-----------|
@@ -62,6 +63,7 @@ Discussion artifacts add: `topic: scope|approach|design|review|retrospective`
 | Implement | `/rpiv:implement` | `3X_implementation.md` | Requires plan artifact (or `--fix` for validation fixes) |
 | Validate | `/rpiv:validate` | `4X_validation.md` | Two-pass system (see below). `--fast` skips Pass 2 |
 | Summarize | `/session_summary` | `50_session_summary.md` | Verification playbook, future work, limitations |
+| Auto | `/rpiv:auto` | All artifacts | Full autonomous cycle. `--resume` to continue. Asks only for real decisions |
 
 ### Tiered Research
 Auto-detected from `/rpiv:start` context. Override with explicit flag.
