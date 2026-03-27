@@ -35,7 +35,6 @@
     ]
   },
   "env": {
-    "MAX_THINKING_TOKENS": "32000",
     "CONTEXT_VAULT": "$HOME/context_vault"
   }
 }
