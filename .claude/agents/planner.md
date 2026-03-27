@@ -30,6 +30,8 @@ EXISTING_HANDOFFS: {{handoffs}}
 Spawn the `codebase-distiller` sub-agent with:
 ```
 Task: {{task}}
+patterns_md: {{patterns_md}}
+conventions_md: {{conventions_md}}
 Analyze the codebase and return:
 1. Files most likely affected (paths + 1-line reason)
 2. Existing patterns relevant to this task (name + file:line example)

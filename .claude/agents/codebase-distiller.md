@@ -14,12 +14,14 @@ Return a compact, high-signal summary. No fluff, no code dumps.
 
 <inputs>
 TASK: {{task}}
+PATTERNS_MD: {{patterns_md}}
+CONVENTIONS_MD: {{conventions_md}}
 </inputs>
 
 ## What to Find
 
 1. **Affected files** — files most likely to be read or modified for this task
-2. **Applicable patterns** — recurring code patterns relevant to this task, with file:line examples
+2. **Applicable patterns** — recurring code patterns relevant to this task, with file:line examples (cross-reference PATTERNS_MD)
 3. **Contracts to preserve** — interfaces, API endpoints, function signatures that must not change
 4. **Non-obvious dependencies** — things that would surprise an engineer who only read the task
 
@@ -52,6 +54,7 @@ Max 400 tokens. Every file reference must include line number.
 
 ## Applicable Patterns
 - **{Pattern Name}**: `path/to/example.py:{line}` — {1-line description}
+  (matches PATTERNS_MD: "{pattern name}" if referenced there)
 
 ## Contracts to Preserve
 - `{endpoint or function}` in `path/to/file.py:{line}` — {constraint}

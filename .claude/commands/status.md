@@ -10,7 +10,7 @@ REPO_NAME=$(basename $(git rev-parse --show-toplevel))
 VAULT_REPO="$CONTEXT_VAULT/$REPO_NAME"
 # Find most recent session
 SESSION_PATH=$(ls -d $VAULT_REPO/sessions/*/ 2>/dev/null | sort | tail -1)
-SESSION_ID=$(basename "$SESSION_PATH" 2>/dev/null)
+SESSION_ID=$(basename "${SESSION_PATH%/}" 2>/dev/null)
 ```
 
 If no session: "No active session. Run `/dev \"task\"` to start."

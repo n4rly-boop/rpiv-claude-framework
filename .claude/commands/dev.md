@@ -20,8 +20,8 @@ Read these files and store their contents (pass to agents as text, not paths):
 - `$VAULT_REPO/CONVENTIONS.md`
 - `$VAULT_REPO/git.md`
 
-Check for existing session to resume: `ls $VAULT_REPO/sessions/ 2>/dev/null | sort | tail -1`
-If `--resume` flag: use most recent session, skip to the last incomplete phase.
+If `--resume` flag: find most recent session via `ls $VAULT_REPO/sessions/ 2>/dev/null | sort | tail -1`,
+use that as SESSION_ID/SESSION_PATH, skip to the last incomplete phase.
 
 ---
 
@@ -76,6 +76,8 @@ Spawn both in parallel:
 - conventions_md: contents of `$VAULT_REPO/CONVENTIONS.md`
 - git_md: contents of `$VAULT_REPO/git.md`
 - handoffs: contents of `$SESSION_PATH/planner_1.md` + any existing generator handoffs
+- issues: (none)
+- fix_attempt: 0
 
 If generator returns `status: blocked`:
 → Read blocker from `$SESSION_PATH/generator_N.md`
@@ -95,6 +97,7 @@ Spawn `evaluator` agent with:
 - phase: 2
 - session_id: `$SESSION_ID`
 - session_path: `$SESSION_PATH`
+- plan_md: contents of `$SESSION_PATH/plan.md`
 - eval_criteria_md: contents of `$SESSION_PATH/eval_criteria.md`
 - changed_files: `$CHANGED_FILES`
 - git_diff: `$GIT_DIFF`
@@ -107,27 +110,37 @@ Spawn `evaluator` agent with:
 ## Fix Loop
 
 ```
-fix_attempt = 0
-while verdict == FAIL and fix_attempt < 2:
-    Read all issues from $SESSION_PATH/evaluator_N.md
-    
+fix_attempt = 1
+while verdict == FAIL and fix_attempt <= 2:
+    Read all issues from most recent $SESSION_PATH/evaluator_N.md
+
     Spawn generator with:
     - session_id: $SESSION_ID
     - session_path: $SESSION_PATH
     - plan_md: contents of $SESSION_PATH/plan.md
-    - issues: full issues list from evaluator verdict
+    - issues: full issues list from latest evaluator verdict
     - patterns_md: contents of $VAULT_REPO/PATTERNS.md
     - conventions_md: contents of $VAULT_REPO/CONVENTIONS.md
     - git_md: contents of $VAULT_REPO/git.md
     - handoffs: contents of all existing generator handoffs in $SESSION_PATH
-    - fix_attempt: fix_attempt + 1
-    
+    - fix_attempt: fix_attempt
+
     # Recompute diff after generator commits fixes
     CHANGED_FILES=$(git diff --name-only $START_COMMIT..HEAD)
     GIT_DIFF=$(git diff $START_COMMIT..HEAD)
-    
-    Spawn evaluator phase 2 with updated CHANGED_FILES and GIT_DIFF
-    
+
+    Spawn evaluator with:
+    - phase: 2
+    - session_id: $SESSION_ID
+    - session_path: $SESSION_PATH
+    - plan_md: contents of $SESSION_PATH/plan.md
+    - eval_criteria_md: contents of $SESSION_PATH/eval_criteria.md
+    - changed_files: $CHANGED_FILES
+    - git_diff: $GIT_DIFF
+    - patterns_md: contents of $VAULT_REPO/PATTERNS.md
+    - conventions_md: contents of $VAULT_REPO/CONVENTIONS.md
+    - fix_attempt: fix_attempt
+
     fix_attempt++
 
 if still FAIL:
