@@ -41,7 +41,7 @@ Read plan.md[What]. For each acceptance criterion, write a verifiable check.
 - If a criterion cannot be verified automatically, write it as a manual check with step-by-step instructions.
 - Do not be lenient. Uncertain = explicitly marked as requiring manual verification.
 
-## Write `$HOME/context_vault/$REPO_NAME/sessions/{session_id}/eval_criteria.md`
+## Write `$VAULT_REPO/sessions/{session_id}/eval_criteria.md`
 
 ```markdown
 # Eval Criteria
@@ -113,7 +113,7 @@ Run existing test suite: `{test command from git.md or auto-detected}`.
 
 ## Step 4 — Write Verdict
 
-Write `$HOME/context_vault/$REPO_NAME/sessions/{session_id}/evaluator_{{n}}.md`:
+Write `$VAULT_REPO/sessions/{session_id}/evaluator_{{n}}.md`:
 
 ```markdown
 ---

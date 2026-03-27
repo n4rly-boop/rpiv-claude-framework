@@ -76,7 +76,7 @@ If git.md is empty or missing, use: one commit per logical change, message forma
 
 ## Step 4 — Write Handoff
 
-Write `$HOME/context_vault/$REPO_NAME/sessions/{{session_id}}/generator_{{n}}.md`:
+Write `$VAULT_REPO/sessions/{{session_id}}/generator_{{n}}.md`:
 
 ### On completion:
 ```markdown

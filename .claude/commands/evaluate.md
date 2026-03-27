@@ -8,9 +8,9 @@ Run evaluator on current working tree.
 
 ```bash
 REPO_NAME=$(basename $(git rev-parse --show-toplevel))
-VAULT_REPO="$HOME/context_vault/$REPO_NAME"
+VAULT_REPO="$CONTEXT_VAULT/$REPO_NAME"
 # Find most recent session
-SESSION_PATH=$(ls -d $HOME/context_vault/$REPO_NAME/sessions/*/ 2>/dev/null | sort | tail -1)
+SESSION_PATH=$(ls -d $VAULT_REPO/sessions/*/ 2>/dev/null | sort | tail -1)
 
 # Get changes
 CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD 2>/dev/null || git status --porcelain | awk '{print $2}')
@@ -26,8 +26,8 @@ Spawn `evaluator` agent with:
 - eval_criteria_md: contents of `$SESSION_PATH/eval_criteria.md` (if exists, else "none — review code quality only")
 - changed_files: `$CHANGED_FILES`
 - git_diff: `$GIT_DIFF`
-- patterns_md: contents of `$HOME/context_vault/$REPO_NAME/PATTERNS.md`
-- conventions_md: contents of `$HOME/context_vault/$REPO_NAME/CONVENTIONS.md`
+- patterns_md: contents of `$VAULT_REPO/PATTERNS.md`
+- conventions_md: contents of `$VAULT_REPO/CONVENTIONS.md`
 - fix_attempt: 0
 
 ## Show Result

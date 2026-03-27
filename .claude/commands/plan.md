@@ -8,9 +8,9 @@ Run planning phase only for: $ARGUMENTS
 
 ```bash
 REPO_NAME=$(basename $(git rev-parse --show-toplevel))
-VAULT_REPO="$HOME/context_vault/$REPO_NAME"
+VAULT_REPO="$CONTEXT_VAULT/$REPO_NAME"
 SESSION_ID=$(date +%Y%m%d-%H%M%S)-$(echo "$ARGUMENTS" | tr ' ' '-' | tr '[:upper:]' '[:lower:]' | cut -c1-30)
-SESSION_PATH="$HOME/context_vault/$REPO_NAME/sessions/$SESSION_ID"
+SESSION_PATH="$VAULT_REPO/sessions/$SESSION_ID"
 mkdir -p "$SESSION_PATH"
 ```
 
@@ -20,8 +20,8 @@ Spawn `planner` agent with:
 - task: `$ARGUMENTS`
 - session_id: `$SESSION_ID`
 - session_path: `$SESSION_PATH`
-- patterns_md: contents of `$HOME/context_vault/$REPO_NAME/PATTERNS.md`
-- conventions_md: contents of `$HOME/context_vault/$REPO_NAME/CONVENTIONS.md`
+- patterns_md: contents of `$VAULT_REPO/PATTERNS.md`
+- conventions_md: contents of `$VAULT_REPO/CONVENTIONS.md`
 
 ## Show Result
 
