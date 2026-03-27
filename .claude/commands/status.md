@@ -20,12 +20,15 @@ If no session: "No active session. Run `/dev \"task\"` to start."
 Read all files in `$SESSION_PATH/`:
 - `plan.md` — exists? (Y/N)
 - `eval_criteria.md` — exists? (Y/N)
-- `planner_*.md` — list with status field
-- `generator_*.md` — list with status field
-- `evaluator_*.md` — list with verdict field
+- `planner_*.md` — list with status field from frontmatter
+- `generator_*.md` — list with status field from frontmatter
+- `evaluator_*.md` — list with verdict field from frontmatter
 
 ```bash
-git log --oneline $(git rev-list --max-parents=0 HEAD)..HEAD 2>/dev/null | head -10
+# Show only commits from this session start
+# Session ID starts with date: YYYYMMDD-HHMMSS
+SESSION_DATE=$(echo $SESSION_ID | cut -c1-15 | tr '-' ' ')
+git log --oneline --after="$SESSION_DATE" 2>/dev/null | head -10
 ```
 
 ## Output
@@ -36,15 +39,15 @@ git log --oneline $(git rev-list --max-parents=0 HEAD)..HEAD 2>/dev/null | head 
 ID: {session_id}
 
 ### Phase Progress
-- [ ] Planning      {planner_1.md status or "not started"}
-- [ ] User review   {plan.md exists? "pending" or "approved"}
-- [ ] Generating    {generator_N.md status or "not started"}
-- [ ] Evaluating    {evaluator_N.md verdict or "not started"}
+- [x/] Planning      {planner_1.md status or "not started"}
+- [x/] User review   {"approved" if plan.md exists, else "pending"}
+- [x/] Generating    {generator_N.md status or "not started"}
+- [x/] Evaluating    {evaluator_N.md verdict or "not started"}
 
 ### Files
-{list all $VAULT_REPO/sessions/{id}/* files}
+{list all files in $SESSION_PATH with sizes}
 
-### Git Changes
+### Git Changes This Session
 {git log --oneline from session start}
 
 ### Next Step

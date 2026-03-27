@@ -12,9 +12,10 @@ VAULT_REPO="$CONTEXT_VAULT/$REPO_NAME"
 SESSION_ID=$(date +%Y%m%d-%H%M%S)-$(echo "$ARGUMENTS" | tr ' ' '-' | tr '[:upper:]' '[:lower:]' | cut -c1-30)
 SESSION_PATH="$VAULT_REPO/sessions/$SESSION_ID"
 mkdir -p "$SESSION_PATH"
+START_COMMIT=$(git rev-parse HEAD)
 ```
 
-Read these files if they exist (pass to agents):
+Read these files and store their contents (pass to agents as text, not paths):
 - `$VAULT_REPO/PATTERNS.md`
 - `$VAULT_REPO/CONVENTIONS.md`
 - `$VAULT_REPO/git.md`
@@ -32,7 +33,7 @@ Spawn `planner` agent with:
 - session_path: `$SESSION_PATH`
 - patterns_md: contents of `$VAULT_REPO/PATTERNS.md`
 - conventions_md: contents of `$VAULT_REPO/CONVENTIONS.md`
-- handoffs: none (first run) or existing handoffs (resume)
+- handoffs: none (first run) or existing handoff contents (resume)
 
 Wait for completion. Verify `$SESSION_PATH/plan.md` exists.
 
@@ -53,7 +54,6 @@ Edit plan.md directly if needed, then reply "go" to continue, or "abort" to stop
 ```
 
 Wait for explicit confirmation. Do not proceed until user says "go" or equivalent.
-
 If user edits plan.md and says "go": re-read the file before continuing.
 
 ---
@@ -64,38 +64,42 @@ Spawn both in parallel:
 
 **Evaluator phase 1:**
 - phase: 1
-- plan_md: contents of plan.md[What section only]
+- session_id: `$SESSION_ID`
 - session_path: `$SESSION_PATH`
+- plan_md: full contents of `$SESSION_PATH/plan.md`
 
 **Generator:**
-- plan_md: contents of plan.md
+- session_id: `$SESSION_ID`
 - session_path: `$SESSION_PATH`
-- patterns_md: `$VAULT_REPO/PATTERNS.md`
-- conventions_md: `$VAULT_REPO/CONVENTIONS.md`
-- git_md: `$VAULT_REPO/git.md`
-- handoffs: planner_1.md + any existing generator handoffs
+- plan_md: full contents of `$SESSION_PATH/plan.md`
+- patterns_md: contents of `$VAULT_REPO/PATTERNS.md`
+- conventions_md: contents of `$VAULT_REPO/CONVENTIONS.md`
+- git_md: contents of `$VAULT_REPO/git.md`
+- handoffs: contents of `$SESSION_PATH/planner_1.md` + any existing generator handoffs
 
 If generator returns `status: blocked`:
-→ Show user the blocker from `generator_N.md`
-→ Wait for user decision
-→ Options: edit plan.md and re-run, provide info and continue, abort
+→ Read blocker from `$SESSION_PATH/generator_N.md`
+→ Show user the blocker description and options
+→ Wait for user decision: edit plan.md and re-run / provide info and continue / abort
 
 ---
 
 ## Phase 3 — Evaluation
 
 ```bash
-CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD 2>/dev/null || git diff --name-only HEAD)
-GIT_DIFF=$(git diff HEAD~1..HEAD 2>/dev/null || git diff HEAD)
+CHANGED_FILES=$(git diff --name-only $START_COMMIT..HEAD)
+GIT_DIFF=$(git diff $START_COMMIT..HEAD)
 ```
 
 Spawn `evaluator` agent with:
 - phase: 2
+- session_id: `$SESSION_ID`
+- session_path: `$SESSION_PATH`
 - eval_criteria_md: contents of `$SESSION_PATH/eval_criteria.md`
 - changed_files: `$CHANGED_FILES`
 - git_diff: `$GIT_DIFF`
-- patterns_md: `$VAULT_REPO/PATTERNS.md`
-- conventions_md: `$VAULT_REPO/CONVENTIONS.md`
+- patterns_md: contents of `$VAULT_REPO/PATTERNS.md`
+- conventions_md: contents of `$VAULT_REPO/CONVENTIONS.md`
 - fix_attempt: 0
 
 ---
@@ -105,20 +109,29 @@ Spawn `evaluator` agent with:
 ```
 fix_attempt = 0
 while verdict == FAIL and fix_attempt < 2:
-    Read issues from evaluator_N.md
+    Read all issues from $SESSION_PATH/evaluator_N.md
     
     Spawn generator with:
-    - plan_md: plan.md
-    - issues: issues list from evaluator
-    - generator handoffs: all existing
+    - session_id: $SESSION_ID
+    - session_path: $SESSION_PATH
+    - plan_md: contents of $SESSION_PATH/plan.md
+    - issues: full issues list from evaluator verdict
+    - patterns_md: contents of $VAULT_REPO/PATTERNS.md
+    - conventions_md: contents of $VAULT_REPO/CONVENTIONS.md
+    - git_md: contents of $VAULT_REPO/git.md
+    - handoffs: contents of all existing generator handoffs in $SESSION_PATH
     - fix_attempt: fix_attempt + 1
     
-    Spawn evaluator phase 2 again with updated diff
+    # Recompute diff after generator commits fixes
+    CHANGED_FILES=$(git diff --name-only $START_COMMIT..HEAD)
+    GIT_DIFF=$(git diff $START_COMMIT..HEAD)
+    
+    Spawn evaluator phase 2 with updated CHANGED_FILES and GIT_DIFF
     
     fix_attempt++
 
 if still FAIL:
-    Show USER GATE with all remaining issues
+    Show USER GATE with all remaining issues from evaluator
     Wait for decision
 ```
 
@@ -134,16 +147,16 @@ Verdict: PASS
 Session: {session_id}
 
 Changes:
-{git diff --stat}
+{git diff --stat $START_COMMIT..HEAD}
 
 Commits:
-{git log --oneline since session start}
+{git log --oneline $START_COMMIT..HEAD}
 ```
 
 ---
 
 ## Flags
 
-- `--fast` — skip evaluator phase 2 (eval_criteria still written, code review skipped)
-- `--plan-only` — stop after USER GATE, do not generate
+- `--fast` — skip evaluator phase 2 (eval_criteria still written, no functional verification)
+- `--plan-only` — stop after USER GATE, do not run generator
 - `--resume` — find most recent session and continue from last incomplete phase

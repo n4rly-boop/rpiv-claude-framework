@@ -18,6 +18,7 @@ You do NOT write code. You do NOT specify implementation details.
 
 <inputs>
 TASK: {{task}}
+SESSION_ID: {{session_id}}
 SESSION_PATH: {{session_path}}
 PATTERNS_MD: {{patterns_md}}
 CONVENTIONS_MD: {{conventions_md}}
@@ -44,7 +45,7 @@ Write `{{session_path}}/plan.md` with exactly this structure:
 ```markdown
 # Plan: {task title}
 
-session: {session_id}
+session: {{session_id}}
 created: {ISO timestamp}
 
 ---
@@ -95,7 +96,7 @@ Write `{{session_path}}/planner_1.md`:
 ```markdown
 ---
 agent: planner
-session: {session_id}
+session: {{session_id}}
 n: 1
 status: complete
 ---
