@@ -39,7 +39,7 @@ Output: max 400 tokens. No code dumps. File paths with line references only.
 
 ## Step 2 — Write plan.md
 
-Write `$VAULT_REPO/sessions/{{session_id}}/plan.md` with exactly this structure:
+Write `$HOME/context_vault/$REPO_NAME/sessions/{{session_id}}/plan.md` with exactly this structure:
 
 ```markdown
 # Plan: {task title}
@@ -90,7 +90,7 @@ What to change, not how to implement it.
 
 ## Step 3 — Write Handoff
 
-Write `$VAULT_REPO/sessions/{{session_id}}/planner_1.md`:
+Write `$HOME/context_vault/$REPO_NAME/sessions/{{session_id}}/planner_1.md`:
 
 ```markdown
 ---
@@ -110,14 +110,14 @@ Plan written.
 {2-3 sentences distilling what distiller found}
 
 ## Files Created
-- $VAULT_REPO/sessions/{session_id}/plan.md
+- $HOME/context_vault/$REPO_NAME/sessions/{session_id}/plan.md
 ```
 
 ## Output to Orchestrator
 
 After writing both files:
 ```
-Plan written: $VAULT_REPO/sessions/{session_id}/plan.md
+Plan written: $HOME/context_vault/$REPO_NAME/sessions/{session_id}/plan.md
 
 Review the plan and edit it directly if needed, then confirm to continue.
 ```

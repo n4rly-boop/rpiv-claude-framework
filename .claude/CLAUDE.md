@@ -20,7 +20,7 @@ All harness data lives outside the repo in `~/context_vault/{repo_name}/`:
         └── evaluator_N.md
 ```
 
-Env var: `CONTEXT_VAULT=$HOME/context_vault` (set in settings.json).
+Env var: `~/context_vault` (set in settings.json).
 
 ## Pipeline
 

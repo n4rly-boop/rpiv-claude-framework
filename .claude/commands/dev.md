@@ -8,18 +8,18 @@ Run the full harness pipeline for: $ARGUMENTS
 
 ```bash
 REPO_NAME=$(basename $(git rev-parse --show-toplevel))
-VAULT_REPO="$CONTEXT_VAULT/$REPO_NAME"
+VAULT_REPO="$HOME/context_vault/$REPO_NAME"
 SESSION_ID=$(date +%Y%m%d-%H%M%S)-$(echo "$ARGUMENTS" | tr ' ' '-' | tr '[:upper:]' '[:lower:]' | cut -c1-30)
-SESSION_PATH="$VAULT_REPO/sessions/$SESSION_ID"
+SESSION_PATH="$HOME/context_vault/$REPO_NAME/sessions/$SESSION_ID"
 mkdir -p "$SESSION_PATH"
 ```
 
 Read these files if they exist (pass to agents):
-- `$VAULT_REPO/PATTERNS.md`
-- `$VAULT_REPO/CONVENTIONS.md`
-- `$VAULT_REPO/git.md`
+- `$HOME/context_vault/$REPO_NAME/PATTERNS.md`
+- `$HOME/context_vault/$REPO_NAME/CONVENTIONS.md`
+- `$HOME/context_vault/$REPO_NAME/git.md`
 
-Check for existing session to resume: `ls $VAULT_REPO/sessions/ 2>/dev/null | sort | tail -1`
+Check for existing session to resume: `ls $HOME/context_vault/$REPO_NAME/sessions/ 2>/dev/null | sort | tail -1`
 If `--resume` flag: use most recent session, skip to the last incomplete phase.
 
 ---
@@ -30,8 +30,8 @@ Spawn `planner` agent with:
 - task: `$ARGUMENTS`
 - session_id: `$SESSION_ID`
 - session_path: `$SESSION_PATH`
-- patterns_md: contents of `$VAULT_REPO/PATTERNS.md`
-- conventions_md: contents of `$VAULT_REPO/CONVENTIONS.md`
+- patterns_md: contents of `$HOME/context_vault/$REPO_NAME/PATTERNS.md`
+- conventions_md: contents of `$HOME/context_vault/$REPO_NAME/CONVENTIONS.md`
 - handoffs: none (first run) or existing handoffs (resume)
 
 Wait for completion. Verify `$SESSION_PATH/plan.md` exists.
@@ -70,9 +70,9 @@ Spawn both in parallel:
 **Generator:**
 - plan_md: contents of plan.md
 - session_path: `$SESSION_PATH`
-- patterns_md: `$VAULT_REPO/PATTERNS.md`
-- conventions_md: `$VAULT_REPO/CONVENTIONS.md`
-- git_md: `$VAULT_REPO/git.md`
+- patterns_md: `$HOME/context_vault/$REPO_NAME/PATTERNS.md`
+- conventions_md: `$HOME/context_vault/$REPO_NAME/CONVENTIONS.md`
+- git_md: `$HOME/context_vault/$REPO_NAME/git.md`
 - handoffs: planner_1.md + any existing generator handoffs
 
 If generator returns `status: blocked`:
@@ -94,8 +94,8 @@ Spawn `evaluator` agent with:
 - eval_criteria_md: contents of `$SESSION_PATH/eval_criteria.md`
 - changed_files: `$CHANGED_FILES`
 - git_diff: `$GIT_DIFF`
-- patterns_md: `$VAULT_REPO/PATTERNS.md`
-- conventions_md: `$VAULT_REPO/CONVENTIONS.md`
+- patterns_md: `$HOME/context_vault/$REPO_NAME/PATTERNS.md`
+- conventions_md: `$HOME/context_vault/$REPO_NAME/CONVENTIONS.md`
 - fix_attempt: 0
 
 ---

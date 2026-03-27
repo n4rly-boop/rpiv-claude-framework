@@ -7,9 +7,9 @@ Show current harness session status.
 
 ```bash
 REPO_NAME=$(basename $(git rev-parse --show-toplevel))
-VAULT_REPO="$CONTEXT_VAULT/$REPO_NAME"
+VAULT_REPO="$HOME/context_vault/$REPO_NAME"
 # Find most recent session
-SESSION_PATH=$(ls -d $VAULT_REPO/sessions/*/ 2>/dev/null | sort | tail -1)
+SESSION_PATH=$(ls -d $HOME/context_vault/$REPO_NAME/sessions/*/ 2>/dev/null | sort | tail -1)
 SESSION_ID=$(basename "$SESSION_PATH" 2>/dev/null)
 ```
 
@@ -42,7 +42,7 @@ ID: {session_id}
 - [ ] Evaluating    {evaluator_N.md verdict or "not started"}
 
 ### Files
-{list all $VAULT_REPO/sessions/{id}/* files}
+{list all $HOME/context_vault/$REPO_NAME/sessions/{id}/* files}
 
 ### Git Changes
 {git log --oneline from session start}
