@@ -2,13 +2,33 @@
 
 Controlled development pipeline: Planner → Generator → Evaluator.
 
+## Storage
+
+All harness data lives outside the repo in `~/context_vault/{repo_name}/`:
+
+```
+~/context_vault/{repo_name}/
+├── PATTERNS.md        ← reusable code patterns (fill in once)
+├── CONVENTIONS.md     ← hard naming/style rules (fill in once)
+├── git.md             ← commit strategy (fill in once)
+└── sessions/
+    └── {YYYYMMDD-HHMMSS-slug}/
+        ├── plan.md
+        ├── eval_criteria.md
+        ├── planner_1.md
+        ├── generator_N.md
+        └── evaluator_N.md
+```
+
+Env var: `CONTEXT_VAULT=$HOME/context_vault` (set in settings.json).
+
 ## Pipeline
 
 ```
 /dev "task"
     ↓
-Planner (reads codebase context)
-    → writes .harness/sessions/{id}/plan.md
+Planner (reads codebase + vault knowledge)
+    → writes sessions/{id}/plan.md
     ↓
 [USER GATE — review and edit plan.md]
     ↓
@@ -26,48 +46,35 @@ BLOCKED → USER GATE immediately
 
 ## Session Files
 
-All session state lives in `.harness/sessions/{YYYYMMDD-HHMMSS-slug}/`:
-
 | File | Written by | Purpose |
 |------|-----------|---------|
 | `plan.md` | Planner | What to build + technical direction |
-| `eval_criteria.md` | Evaluator | Verification criteria (from plan[What]) |
-| `planner_1.md` | Planner | Handoff on completion/block |
+| `eval_criteria.md` | Evaluator | Verification criteria from plan[What] |
+| `planner_1.md` | Planner | Handoff on completion |
 | `generator_N.md` | Generator | Handoff on completion/block |
-| `evaluator_N.md` | Evaluator | Handoff if needed |
-
-## Knowledge Files
-
-Maintain these in `.harness/`:
-
-| File | Purpose |
-|------|---------|
-| `PATTERNS.md` | Reusable code patterns with examples |
-| `CONVENTIONS.md` | Hard naming/style rules |
-| `git.md` | Commit strategy for this project |
+| `evaluator_N.md` | Evaluator | Verdict + issues |
 
 ## Core Rules
 
-1. **Planner** — business + technical direction only. Never specifies implementation details.
+1. **Planner** — direction only. Never specifies implementation details.
 2. **Generator** — implements ONLY what plan.md[How] says. No scope creep.
-3. **Evaluator** — derives eval_criteria.md from plan.md[What] independently. Never from generator output.
-4. **Handoffs** — every main agent writes `{agent}_N.md` on completion or block. Orchestrator passes them.
-5. **USER GATEs** — mandatory after plan.md. Mandatory on BLOCKED. Mandatory on FAIL×2.
-6. **Sub-agents** — each main agent manages its own. Results logged in handoff.
+3. **Evaluator** — derives eval_criteria.md from plan.md[What] independently.
+4. **Handoffs** — every main agent writes `{agent}_N.md` on completion or block.
+5. **USER GATEs** — mandatory after plan.md, on BLOCKED, on FAIL×2.
+6. **Sub-agents** — each main agent manages its own.
 
 ## Commands
 
 | Command | What it does |
 |---------|-------------|
 | `/dev "task"` | Full pipeline |
-| `/plan "task"` | Planning only, stops at USER GATE |
+| `/plan "task"` | Planning only |
 | `/evaluate` | Run evaluator on current git state |
 | `/status` | Show current session state |
 
 ## Prohibited
 
-- Running `/dev` without letting user review plan.md
+- Running generator before user reviews plan.md
 - Generator writing eval_criteria.md
-- Proceeding past a BLOCKED status without user input
-- Pasting >50 lines of code in chat
+- Proceeding past BLOCKED without user input
 - Accessing .env files (enforced by hook)
