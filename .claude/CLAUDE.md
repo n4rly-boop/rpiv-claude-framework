@@ -4,10 +4,10 @@ Controlled development pipeline: Planner → Generator → Evaluator.
 
 ## Storage
 
-All harness data lives outside the repo in `~/context_vault/{repo_name}/`:
+All harness data lives outside the repo in `CONTEXT_VAULT/{repo_name}/`:
 
 ```
-~/context_vault/{repo_name}/
+CONTEXT_VAULT/{repo_name}/
 ├── PATTERNS.md        ← reusable code patterns (fill in once)
 ├── CONVENTIONS.md     ← hard naming/style rules (fill in once)
 ├── git.md             ← commit strategy (fill in once)
