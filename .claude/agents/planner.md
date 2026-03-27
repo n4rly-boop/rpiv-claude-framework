@@ -22,6 +22,7 @@ SESSION_ID: {{session_id}}
 SESSION_PATH: {{session_path}}
 PATTERNS_MD: {{patterns_md}}
 CONVENTIONS_MD: {{conventions_md}}
+DECISIONS_MD: {{decisions_md}}
 EXISTING_HANDOFFS: {{handoffs}}
 </inputs>
 
@@ -90,6 +91,7 @@ What to change, not how to implement it.
 - If task is genuinely ambiguous, ask ONE clarifying question before writing. Not "Is this correct?" — only ask if a misunderstanding would cause wrong implementation.
 - Keep plan.md under 60 lines total.
 - If PATTERNS.md has a relevant pattern, reference it by name in How.
+- If DECISIONS_MD has a relevant entry (rejected approach, landmine, constraint), reference it in plan.md[How] under **Risks** or **Do not touch**.
 
 ## Step 3 — Write Handoff
 

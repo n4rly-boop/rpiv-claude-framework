@@ -11,6 +11,8 @@ CONTEXT_VAULT/{repo_name}/
 ├── PATTERNS.md        ← reusable code patterns (fill in once)
 ├── CONVENTIONS.md     ← hard naming/style rules (fill in once)
 ├── git.md             ← commit strategy (fill in once)
+├── decisions.md       ← non-derivable knowledge: why decisions were made,
+│                        rejected alternatives, landmines, external constraints
 └── sessions/
     └── {YYYYMMDD-HHMMSS-slug}/
         ├── plan.md
@@ -21,6 +23,20 @@ CONTEXT_VAULT/{repo_name}/
 ```
 
 Env var: `CONTEXT_VAULT=$HOME/context_vault` (set in settings.json).
+
+### decisions.md format
+
+```markdown
+## {topic or module} — {YYYY-MM-DD}
+
+**Decision:** {what was chosen and why}
+**Rejected:** {alternatives considered and why they were dropped}
+**Constraints:** {external constraints — clients, compliance, SLAs}
+**Landmines:** {don't touch X without reading Y — subtle bugs, race conditions, etc.}
+```
+
+Add an entry whenever a non-obvious architectural or design choice is made.
+This file is read by planner and generator on every run.
 
 ## Pipeline
 

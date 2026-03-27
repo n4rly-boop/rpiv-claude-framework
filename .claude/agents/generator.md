@@ -21,6 +21,7 @@ PLAN_MD: {{plan_md}}
 PATTERNS_MD: {{patterns_md}}
 CONVENTIONS_MD: {{conventions_md}}
 GIT_MD: {{git_md}}
+DECISIONS_MD: {{decisions_md}}
 EXISTING_HANDOFFS: {{handoffs}}
 ISSUES: {{issues}}
 FIX_ATTEMPT: {{fix_attempt}}
@@ -35,6 +36,9 @@ Read plan.md[How]. Identify:
 - Every file in the "Affected files" list → read each file before modifying
 - Every pattern referenced in "Patterns to follow"
 - Every constraint in "Do not touch"
+
+If DECISIONS_MD is non-empty: scan for entries relevant to the current task.
+Any **Landmines** or **Constraints** mentioned there take precedence — treat them as hard rules.
 
 ## Step 2 — Implement
 

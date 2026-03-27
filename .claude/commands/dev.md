@@ -19,6 +19,7 @@ Read these files and store their contents (pass to agents as text, not paths):
 - `$VAULT_REPO/PATTERNS.md`
 - `$VAULT_REPO/CONVENTIONS.md`
 - `$VAULT_REPO/git.md`
+- `$VAULT_REPO/decisions.md` (optional — pass empty string if file doesn't exist)
 
 If `--resume` flag: find most recent session via `ls $VAULT_REPO/sessions/ 2>/dev/null | sort | tail -1`,
 use that as SESSION_ID/SESSION_PATH, skip to the last incomplete phase.
@@ -33,6 +34,7 @@ Spawn `planner` agent with:
 - session_path: `$SESSION_PATH`
 - patterns_md: contents of `$VAULT_REPO/PATTERNS.md`
 - conventions_md: contents of `$VAULT_REPO/CONVENTIONS.md`
+- decisions_md: contents of `$VAULT_REPO/decisions.md` (or empty)
 - handoffs: none (first run) or existing handoff contents (resume)
 
 Wait for completion. Verify `$SESSION_PATH/plan.md` exists.
@@ -75,6 +77,7 @@ Spawn both in parallel:
 - patterns_md: contents of `$VAULT_REPO/PATTERNS.md`
 - conventions_md: contents of `$VAULT_REPO/CONVENTIONS.md`
 - git_md: contents of `$VAULT_REPO/git.md`
+- decisions_md: contents of `$VAULT_REPO/decisions.md` (or empty)
 - handoffs: contents of `$SESSION_PATH/planner_1.md` + any existing generator handoffs
 - issues: (none)
 - fix_attempt: 0
@@ -122,6 +125,7 @@ while verdict == FAIL and fix_attempt <= 2:
     - patterns_md: contents of $VAULT_REPO/PATTERNS.md
     - conventions_md: contents of $VAULT_REPO/CONVENTIONS.md
     - git_md: contents of $VAULT_REPO/git.md
+    - decisions_md: contents of $VAULT_REPO/decisions.md (or empty)
     - handoffs: contents of all existing generator handoffs in $SESSION_PATH
     - fix_attempt: fix_attempt
 
